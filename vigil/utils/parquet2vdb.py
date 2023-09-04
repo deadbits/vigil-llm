@@ -3,20 +3,50 @@ import os
 import sys
 import argparse
 import logging
+import configparser
 import pandas as pd
 
 import chromadb
 
 from uuid import uuid4
 
+from typing import Optional
+
 from chromadb.config import Settings
 from chromadb.utils import embedding_functions
-
-from vigil.config import Config
 
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+class Config:
+    def __init__(self, config_file: str):
+        self.config_file = config_file
+        self.config = configparser.ConfigParser()
+        if not os.path.exists(self.config_file):
+            logging.error(f'[config] Config file not found: {self.config_file}')
+            sys.exit(1)
+
+        logging.info(f'[config] Loading config file: {self.config_file}')
+        self.config.read(config_file)
+
+    def get_val(self, section: str, key: str) -> Optional[str]:
+        answer = None
+
+        try:
+            answer = self.config.get(section, key)
+        except Exception as err:
+            logging.error(f'[config] Config file missing section: {section} - {err}')
+
+        return answer
+
+    def get_bool(self, section: str, key: str, default: bool = False) -> bool:
+        try:
+            return self.config.getboolean(section, key)
+        except Exception as err:
+            logging.error(f'[config] Failed to parse boolean - returning default "False": {section} - {err}')
+            return default
 
 
 class VectorDB:
@@ -33,8 +63,7 @@ class VectorDB:
             )
 
         self.db_dir = config_dict['db_dir']
-        self.n_results = int(config_dict['n_results'])
-        self.collection_name = config_dict['collection_name']
+        self.collection_name = config_dict['collection']
 
         self.client = chromadb.PersistentClient(
             path=self.db_dir,
@@ -111,9 +140,8 @@ if __name__ == "__main__":
     directory = args.directory
 
     # vector db scanner config
-    vdb_dir = conf.get_val('vectordb', 'db_dir')
-    vdb_collection = conf.get_val('vectordb', 'collection_name')
-    vdb_n_results = conf.get_val('vectordb', 'n_results')
+    vdb_dir = conf.get_val('scanner:vectordb', 'db_dir')
+    vdb_collection = conf.get_val('scanner:vectordb', 'collection')
 
     if not os.path.isdir(vdb_dir):
         logger.error(f'[main] VectorDB directory not found: {vdb_dir}')
@@ -134,23 +162,23 @@ if __name__ == "__main__":
             logger.error('[main] OpenAI embedding model selected but no key or model name set in config')
             sys.exit(1)
 
+        logger.info(f'[main] using database directory: {vdb_dir}')
         vdb = VectorDB(config_dict={
-            'collection_name': vdb_collection,
+            'collection': vdb_collection,
             'embed_fn': 'openai',
             'openai_key': openai_key,
             'openai_model': openai_model,
             'db_dir': vdb_dir,
-            'n_results': vdb_n_results
         })
 
     else:
         logger.info('[main] Using SentenceTransformer embedding model')   
 
+        logger.info(f'[main] Using database directory: {vdb_dir}')
         vdb = VectorDB(config_dict={
-            'collection_name': vdb_collection,
+            'collection': vdb_collection,
             'embed_fn': emb_model,
             'db_dir': vdb_dir,
-            'n_results': vdb_n_results
         })
     for filename in os.listdir(directory):
         if filename.endswith(".parquet"):  # <-- Look for .parquet files
