@@ -12,7 +12,7 @@ This application is currently in an **alpha** state. Work is ongoing to expand d
 
 ## Highlights ✨
 
-* Analyze LLM prompts for common injections
+* Analyze LLM prompts for common injections and risky inputs
 * Interact via REST API server and command line utility
 * Scanners are modular and easily extensible
 * Available scan modules
@@ -20,8 +20,11 @@ This application is currently in an **alpha** state. Work is ongoing to expand d
     * [x] Heuristics via [YARA](https://virustotal.github.io/yara)
     * [x] Transformer model
     * [x] Moderation model
-    * [ ] Relevance filter via LLM
-* Supports [locally hosted](https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard) LLM and [embeddings](https://www.sbert.net/) and/or [OpenAI](https://platform.openai.com/)
+    * [ ] Relevance (via LLM)
+* Supports [local embeddings](https://www.sbert.net/) and/or [OpenAI](https://platform.openai.com/)
+    * [ ] Local LLM for relevance scanner
+* Signatures and embeddings for common attacks
+* Custom detections via YARA signatures
 
 ## Background 🏗️
 
@@ -46,8 +49,6 @@ For more information on prompt injection, I recommend the following resources an
 ## Use Vigil 🛠️
 
 Follow the steps below to setup your environment and database then run the API server or command line utility to start analyzing prompts!
-
-Details on each of the scanners is also below in the [Detection Methods]() section. Full documentation is available here.
 
 ### Clone Repository
 
