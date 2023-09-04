@@ -10,6 +10,8 @@
 
 This application is currently in an **alpha** state. Work is ongoing to expand detection mechanisms and features.
 
+**[Full documentation](https://vigil.deadbits.ai)** 
+
 ## Highlights ✨
 
 * Analyze LLM prompts for common injections and risky inputs
