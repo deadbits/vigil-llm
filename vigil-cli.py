@@ -22,8 +22,8 @@ log_name = 'cli:main'
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        prog='vigil-cli'
-        description='Analyze prompts for various threats'
+        prog='vigil-cli',
+        description='Analyze prompts for various threats',
         epilog='vigil-cli -c conf/sever.conf -p "prompt text"'
     )
 
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     use_scanners = []
 
     for name in input_scanners:
-        if name == 'lm':
+        if name == 'transformer':
             # Transformer scanner config
             lm_name = conf.get_val('scanner:transformer', 'model')
             if lm_name is None:
