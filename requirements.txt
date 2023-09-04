@@ -4,4 +4,6 @@ pydantic==1.10.7
 Flask==2.2.3
 yara-python==4.3.1
 configparser==5.3.0
+pandas==2.0.0
+pyarrow==12.0.0
 chromadb==0.4.8
