@@ -15,10 +15,10 @@ from vigil.schema import ScanModel
 from vigil.schema import VectorMatch
 from vigil.schema import YaraMatch
 from vigil.schema import ModelMatch
-from vigil.schema import ModerationMatch
+# from vigil.schema import ModerationMatch
 
 
-__version__ = "0.5.0.0"
+__version__ = "0.5.1"
 __app__ = "vigil"
 __description__ = "LLM security scanner"
 
@@ -33,6 +33,6 @@ __all__ = [
     'ScanModel',
     'VectorMatch',
     'YaraMatch',
-    'ModelMatch',
-    'ModerationMatch'
+    'ModelMatch'
+    #'ModerationMatch'
 ]
