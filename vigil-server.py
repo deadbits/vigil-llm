@@ -44,35 +44,6 @@ class LRUCache:
         self.cache[key] = value
 
 
-@app.route('/settings', methods=['GET'])
-def settings():
-    logger.info(f'[{log_name}] ({request.path}) Retrieving config details')
-
-    details = {
-        'scanners': {
-            'transformer': {
-                'model': conf.get_val('scanner:transformer', 'model'),
-                'threshold': conf.get_val('scanner:transformer', 'threshold')
-            },
-            'yara': {
-                'rules_dir': conf.get_val('scanner:yara', 'rules_dir')
-            },
-            'vectordb': {
-                'db': conf.get_val('scanner:vectordb', 'db_dir'),
-                'collection': conf.get_val('scanner:vectordb', 'collection'),
-                'threshold': conf.get_val('scanner:vectordb', 'threshold'),
-                'n_results': conf.get_val('scanner:vectordb', 'n_results'),
-                'embed_fn': conf.get_val('scanner:vectordb', 'embed_fn')
-            }
-        },
-        'cache': {
-            'size': conf.get_val('main', 'cache_max')
-        }
-    }
-
-    return jsonify(details)
-
-
 @app.route('/analyze', methods=['POST'])
 def analyze_prompt():
     input_prompt = request.json.get('prompt', '')
