@@ -9,3 +9,5 @@ Vigil is currently in a beta state and work is ongoing to improve its capabiliti
 - [ ] Improved Cache (Redis or similar)
 - [ ] Hosted documentation
 - [ ] Playground Web UI
+- [ ] Canary tokens
+- [ ] Cohere embeddings for vectordb
