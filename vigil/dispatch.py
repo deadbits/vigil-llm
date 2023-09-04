@@ -32,6 +32,7 @@ class Manager:
 
         if not input_prompt:
             response['errors'].append('Input prompt value is empty')
+            response['status'] = 'failed'
             logger.error(f'[{self.name}] input prompt value is empty')
             return response
 
