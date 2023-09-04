@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     input_scanners = conf.get_val('scanners', 'input_scanners')
     if input_scanners is None:
-        logger.error('[{log_name}] No input scanners set in config')
+        logger.error(f'[{log_name}] No input scanners set in config')
         sys.exit(1)
 
     try:
@@ -60,12 +60,12 @@ if __name__ == '__main__':
             # Transformer scanner config
             lm_name = conf.get_val('scanner:transformer', 'model')
             if lm_name is None:
-                logger.error('[{log_name}] No model name for model scanner set in config')
+                logger.error(f'[{log_name}] No model name for model scanner set in config')
                 sys.exit(1)
 
             threshold = conf.get_val('scanner:transformer', 'threshold')
             if threshold is None:
-                logger.error('[{log_name}] No threshold for model scanner set in config')
+                logger.error(f'[{log_name}] No threshold for model scanner set in config')
                 sys.exit(1)
 
             lm_scanner = TransformerScanner(config_dict={
@@ -79,7 +79,7 @@ if __name__ == '__main__':
             # YARA scanner config
             yara_dir = conf.get_val('scanner:yara', 'rules_dir')
             if yara_dir is None:
-                logger.error('[{log_name}] No yara rules directory set in config')
+                logger.error(f'[{log_name}] No yara rules directory set in config')
                 sys.exit(1)
 
             yara_scanner = YaraScanner(config_dict={'rules_dir': yara_dir})
@@ -100,16 +100,16 @@ if __name__ == '__main__':
             # text embedding model
             emb_model = conf.get_val('embedding', 'model')
             if emb_model is None:
-                logger.warn('[{log_name}] No embedding model set in config file')
+                logger.error(f'[{log_name}] No embedding model set in config file')
                 sys.exit(1)
 
             if emb_model == 'openai':
-                logger.info('[{log_name}] Using OpenAI embedding model')
+                logger.info(f'[{log_name}] Using OpenAI embedding model')
                 openai_key = conf.get_val('embedding', 'openai_api_key')
                 openai_model = conf.get_val('embedding', 'openai_model')
 
                 if openai_key is None or openai_model is None:
-                    logger.error('[{log_name}] OpenAI embedding model selected but no key or model name set in config')
+                    logger.error(f'[{log_name}] OpenAI embedding model selected but no key or model name set in config')
                     sys.exit(1)
 
                 vector_scanner = VectorScanner(config_dict={
@@ -123,7 +123,7 @@ if __name__ == '__main__':
                 })
 
             else:
-                logger.info('[{log_name}] Using SentenceTransformer embedding model')
+                logger.info(f'[{log_name}] Using SentenceTransformer embedding model')
 
                 vector_scanner = VectorScanner(config_dict={
                     'collection_name': vdb_collection,
@@ -136,7 +136,7 @@ if __name__ == '__main__':
             use_scanners.append(vector_scanner)
 
         else:
-            logger.warn(f'[{log_name}] Unsupported scanner set in config: {name}')
+            logger.warning(f'[{log_name}] Unsupported scanner set in config: {name}')
 
     mgr = Manager(scanners=use_scanners)
     result = mgr.perform_scan(args.prompt)
