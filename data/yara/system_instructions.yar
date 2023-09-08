@@ -11,6 +11,9 @@ rule SystemInstructions_vigil: PromptInjection
         $inst_l2_1 = "<s>[INST] <<SYS>>"
         $inst_l2_0 = "<</SYS>>"
 
+        $inst_00 = "<|im_start|>assistant"
+        $inst_01 = "<|im_start|>system"
+
         $guidance0 = "{{#system~}}"
         $guidance1 = "{{/system~}}"
 
@@ -22,4 +25,6 @@ rule SystemInstructions_vigil: PromptInjection
         ($guidance0)
         or
         ($guidance1)
+        or
+        ($inst_00) or ($inst_01)
 }
