@@ -44,6 +44,17 @@ class LRUCache:
         self.cache[key] = value
 
 
+@app.route('/settings', methods=['GET'])
+def show_settings():
+    logger.info(f'[{log_name}] ({request.path}) Returning config dictionary')
+    config_dict = {s:dict(conf.config.items(s)) for s in conf.config.sections()}
+
+    if 'embedding' in config_dict:
+        config_dict['embedding'].pop('openai_api_key', None)
+
+    return jsonify(config_dict)
+
+
 @app.route('/analyze', methods=['POST'])
 def analyze_prompt():
     input_prompt = request.json.get('prompt', '')
@@ -82,6 +93,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    global conf
     conf = Config(args.config)
 
     input_scanners = conf.get_val('scanners', 'input_scanners')
