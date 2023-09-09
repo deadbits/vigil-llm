@@ -18,13 +18,5 @@ rule SystemInstructions_vigil: PromptInjection
         $guidance1 = "{{/system~}}"
 
     condition:
-        ($inst) or ($inst0) 
-        or 
-        ($inst_l2_1 and $inst_l2_0)
-        or
-        ($guidance0)
-        or
-        ($guidance1)
-        or
-        ($inst_00) or ($inst_01)
+        any of them
 }
