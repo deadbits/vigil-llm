@@ -1,6 +1,7 @@
 # https://github.com/deadbits/vigil-llm
 import os
 import sys
+import json
 import argparse
 import logging
 import configparser
@@ -81,7 +82,7 @@ class VectorDB:
         return self.collection
 
     def add_texts(self, texts: list, ids: list):
-        logger.info(f'[{self.name}] Adding {len(texts)} to database')
+        logger.info(f'[{self.name}] Adding {len(texts)} texts to database')
         try:
             self.collection.add(
                 documents=texts,
@@ -90,29 +91,56 @@ class VectorDB:
         except Exception as err:
             logger.error(f'[{self.name}] Failed to add texts to collection: {err}')
 
+    def add_embeddings(self, texts: list, embeddings: list, ids: list):
+        logger.info(f'[{self.name}] Adding {len(texts)} embeddings to database')
+        try:
+            self.collection.add(
+                documents=texts,
+                embeddings=embeddings,
+                ids=ids
+            )
+        except Exception as err:
+            logger.error(f'[{self.name}] Failed to add texts to collection: {err}')
 
-def process_file(fpath, chunk_size=100):
+
+def process_file(fpath, re_embed=False, chunk_size=100):
     texts = []
+    embeddings = []
     ids = []
 
-    df = pd.read_parquet(fpath)
+    # i feel like i'm doing this wrong..
+    # there must be a better way
+    table = pd.read_parquet(fpath)
+    json_data = table.to_json(orient='records')
+    json_dict = json.loads(json_data)
 
-    for idx, entry in df.iterrows():
-        text = entry.get('text', None)
+    for idx, item in enumerate(json_dict):
+        unique_id = str(uuid4())
+        ids.append(unique_id)
 
-        if text:
-            unique_id = str(uuid4())
-            texts.append(text)
-            ids.append(unique_id)
+        text = item.get('text')
+        texts.append(text)
+
+        if not re_embed:
+            e = item.get('embeddings')
+            embeddings.append(e)
 
         if (idx + 1) % chunk_size == 0:
-            if texts and ids:
+            if not re_embed:
+                vdb.add_embeddings(texts, embeddings, ids)
+            else:
                 vdb.add_texts(texts, ids)
+
             texts = []
             ids = []
+            if not re_embed:
+                embeddings = []
 
-    if texts and ids:
-        vdb.add_texts(texts, ids)
+    if texts and ids and embeddings:
+        if not re_embed:
+            vdb.add_embeddings(texts, embeddings, ids)
+        else:
+            vdb.add_texts(texts, ids)
 
 
 if __name__ == "__main__":
@@ -120,9 +148,16 @@ if __name__ == "__main__":
 
     parser.add_argument(
         '-d', '--directory', 
-        help='directory containing JSON files',
+        help='directory containing Parquet files',
         type=str,
         required=True
+    )
+
+    parser.add_argument(
+        '-e', '--embed',
+        help='re-embed text data (otherwise load existing embeddings)',
+        action='store_true',
+        required=False
     )
 
     parser.add_argument(
@@ -137,7 +172,15 @@ if __name__ == "__main__":
     conf = Config(args.config)
 
     args = parser.parse_args()
+
+    if not os.path.isdir(args.directory):
+        logger.error(f'[main] --directory {args.directory} is not a valid location')
+        sys.exit(1)
+
     directory = args.directory
+    embed_flag = args.embed
+    if embed_flag:
+        logger.info(f'[main] Re-embedding text data with model specified in {args.config}')
 
     # vector db scanner config
     vdb_dir = conf.get_val('scanner:vectordb', 'db_dir')
@@ -180,8 +223,9 @@ if __name__ == "__main__":
             'embed_fn': emb_model,
             'db_dir': vdb_dir,
         })
+
     for filename in os.listdir(directory):
-        if filename.endswith(".parquet"):  # <-- Look for .parquet files
+        if filename.endswith(".parquet"):
             filepath = os.path.join(directory, filename)
             print(f"Processing {filepath}...")
-            process_file(filepath)
+            process_file(filepath, re_embed=embed_flag)
