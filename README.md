@@ -10,7 +10,8 @@
 
 This application is currently in an **alpha** state. Work is ongoing to expand detection mechanisms and features.
 
-**[Full documentation](https://vigil.deadbits.ai)** 
+* **[Full documentation](https://vigil.deadbits.ai)**
+* **[Release Blog](https://vigil.deadbits.ai/overview/background)**
 
 ## Highlights ✨
 
