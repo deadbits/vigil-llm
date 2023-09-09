@@ -22,6 +22,15 @@ class ScanModel(BaseModel):
     metadata: Optional[dict] = {}
 
 
+class ResponseModel(BaseModel):
+    status: str = ''
+    timestamp: str = ''
+    input_prompt: str = ''
+    messages: List[str] = []
+    errors: List[str] = []
+    results: Dict[str, List[dict]] = {}
+
+
 class VectorMatch(BaseModel):
     text: str = ''
     metadata: Optional[dict] = {}
@@ -42,5 +51,5 @@ class ModelMatch(BaseModel):
 
 class ModerationMatch(BaseModel):
     model_name: str = ''
-    category: float = 0.0
+    category: str = ''
     score: float = 0.0

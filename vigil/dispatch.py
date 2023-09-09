@@ -4,6 +4,7 @@ from typing import List, Dict
 
 from vigil.schema import BaseScanner
 from vigil.schema import ScanModel
+from vigil.schema import ResponseModel
 
 from vigil.common import timestamp_str
 
@@ -18,53 +19,49 @@ class Manager:
         self.dispatcher = Scanner(scanners)
 
     def perform_scan(self, input_prompt: str) -> dict:
-        response = {
-            'status': 'success',
-            'timestamp': timestamp_str(),
-            'input_prompt': '',
-            'messages': [],
-            'errors': [],
-            'results': {
-                'scanner:yara': {'matches': []},
-                'scanner:vectordb': {'matches': [], 'threshold': 0.2}
-            }
-        }
+        resp = ResponseModel(
+            status='success',
+            timestamp=timestamp_str(),
+            input_prompt=input_prompt
+        )
 
         if not input_prompt:
-            response['errors'].append('Input prompt value is empty')
-            response['status'] = 'failed'
+            resp.errors.append('Input prompt value is empty')
+            resp.status = 'failed'
             logger.error(f'[{self.name}] input prompt value is empty')
-            return response
+            return resp.dict()
 
         scan_obj = ScanModel(input_prompt=input_prompt)
         logging.info(f'[{self.name}] New scan object; id={scan_obj.uuid}')
 
-        scan_results = self.dispatcher.run(scan_obj.input_prompt, scan_obj.uuid)
+        scan_results = self.dispatcher.run(
+            scan_obj.input_prompt,
+            scan_obj.uuid
+        )
 
         for scanner_name, results in scan_results.items():
             if 'error' in results:
-                response['status'] = 'partial_success'
-                response['errors'].append(f'Error in {scanner_name}: {results["error"]}')
+                resp.status = 'partial_success'
+                resp.errors.append(f'Error in {scanner_name}: {results["error"]}')
             else:
-                response['results'][scanner_name] = {'matches': results}
+                resp.results[scanner_name] = {'matches': results}
 
             # Additional logic for message updates
             if scanner_name == 'scanner:yara' and len(results) > 0:
-                if 'Potential prompt injection detected: YARA signature(s)' not in response['messages']:          
-                    response['messages'].append('Potential prompt injection detected: YARA signature(s)')
+                if 'Potential prompt injection detected: YARA signature(s)' not in resp.messages:          
+                    resp.messages.append('Potential prompt injection detected: YARA signature(s)')
 
             if scanner_name == 'scanner:transformer' and len(results) > 0:
-                if 'Potential prompt injection detected: transformer model' not in response['messages']:
-                    response['messages'].append('Potential prompt injection detected: transformer model')
+                if 'Potential prompt injection detected: transformer model' not in resp.messages:
+                    resp.messages.append('Potential prompt injection detected: transformer model')
 
             if scanner_name == 'scanner:vectordb' and len(results) > 0:
-                if 'Potential prompt injection detected: vector similarity' not in response['messages']:
-                    response['messages'].append('Potential prompt injection detected: vector similarity')
+                if 'Potential prompt injection detected: vector similarity' not in resp.messages:
+                    resp.messages.append('Potential prompt injection detected: vector similarity')
 
-        response['input_prompt'] = scan_obj.input_prompt
-        logging.info(f'[{self.name}] returning response: {response}')
+        logging.info(f'[{self.name}] returning response: {resp}')
 
-        return response
+        return resp.dict()
 
 
 class Scanner:
