@@ -1,10 +1,9 @@
-rule ContainsGuidance_vigil: Guidance
+rule ContainsGuidance: Guidance
 {
     meta:
         category = "Informational"
         description = "Detects prompts that include Guidance language terms (e.g., {{#system~}})"
         reference = "https://github.com/guidance-ai/guidance"
-        author = "Adam M. Swanda"
 
     strings:
         $system0 = "{{#system~}}"
@@ -16,11 +15,5 @@ rule ContainsGuidance_vigil: Guidance
         $assistant0 = "{{#assistant~}}"
         $assistant1 = "{{/assistant~}}"
     condition:
-        (
-            any of ($system*)
-            or
-            any of ($user*)
-            or
-            any of ($assistant*)
-        )
+        any of them
 }
