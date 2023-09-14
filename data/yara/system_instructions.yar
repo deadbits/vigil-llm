@@ -7,7 +7,8 @@ rule SystemInstructions_vigil: PromptInjection
 
     strings:
         $inst = "System Instruction: "
-        $inst0 = "[system]"
+        $inst0 = "[system](#assistant)"
+        $inst1 = "[system](#context)"
         $inst_l2_1 = "<s>[INST] <<SYS>>"
         $inst_l2_0 = "<</SYS>>"
 
