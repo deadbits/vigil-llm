@@ -46,7 +46,14 @@ class YaraMatch(BaseModel):
 class ModelMatch(BaseModel):
     model_name: str = ''
     score: float = 0.0
+    label: str = ''
     threshold: float = 0.0
+
+
+class SimilarityMatch(BaseModel):
+    score: float = 0.0
+    threshold: float = 0.0
+    message: str = ''
 
 
 class ModerationMatch(BaseModel):
