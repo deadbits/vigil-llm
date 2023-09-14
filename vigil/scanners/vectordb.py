@@ -42,13 +42,14 @@ class VectorScanner(BaseScanner):
             settings=Settings(anonymized_telemetry=False, allow_reset=True),
         )
         self.collection = self.get_or_create_collection(self.collection_name)
-        logger.info(f'[{self.name}] loaded scanner')
+        logger.info(f'[{self.name}] Loaded scanner')
 
     def get_or_create_collection(self, name):
         logger.info(f'[{self.name}] Using collection: {name}')
         self.collection = self.client.get_or_create_collection(
             name=name,
             embedding_function=self.embed_fn,
+            metadata={'hnsw:space': 'cosine'}
         )
         return self.collection
 
