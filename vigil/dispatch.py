@@ -59,7 +59,7 @@ class Manager:
                 if 'Potential prompt injection detected: vector similarity' not in resp.messages:
                     resp.messages.append('Potential prompt injection detected: vector similarity')
 
-        logging.info(f'[{self.name}] returning response: {resp}')
+        logging.info(f'[{self.name}] returning response object; id={scan_obj.uuid}')
 
         return resp.dict()
 
