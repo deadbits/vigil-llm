@@ -17,13 +17,9 @@ rule ContainAPIToken
 
         $facebook = /EAACEdEose0cBA[0-9A-Za-z]+/
 
-        $github = /github(.{0,20})?(?-i)['\"][0-9a-zA-Z]{35,40}/
-
         $google = /AIza[0-9A-Za-z\\-_]{35}/
 
         $gcp = /(google|gcp|youtube|drive|yt)(.{0,20})?['\"][AIza[0-9a-z\\-_]{35}]['\"]/
-
-        $heroku = /[h|H][e|E][r|R][o|O][k|K][u|U].{0,30}[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}/
 
         $linkedin = /linkedin(.{0,20})?['\"][0-9a-z]{16}/
 
@@ -32,8 +28,6 @@ rule ContainAPIToken
         $mailgun = /key-[0-9a-zA-Z]{32}/
 
         $slack = /xox[baprs]-([0-9a-zA-Z]{10,48})?/
-
-        $stripe = /(?:r|s)k_live_[0-9a-zA-Z]{24}/
 
         $square0 = /sqOatp-[0-9A-Za-z\\-_]{22}/
 
