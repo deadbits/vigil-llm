@@ -2,33 +2,12 @@ import yaml
 import uuid
 import logging
 
-import guardrails as gd
-
-from typing import List, Optional
-from guardrails.validators import ValidRange, ValidChoices
-from pydantic import BaseModel, Field
-
 from vigil.schema import BaseScanner
 from vigil.llm import LLM
 
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-
-class LLMResponse(BaseModel):
-    detected: bool = Field(
-        default=False, 
-        description='Whether or not the prompt was detected'
-    )
-    irregular: List[str] = Field(
-        default=[],
-        description='List of irregular chunks detected'
-    )
-    chunks: List[str] = Field(
-        default=[],
-        description='List of abbreviated chunks'
-    )
 
 
 class RelevanceScanner(BaseScanner):
