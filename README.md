@@ -22,11 +22,12 @@ This application is currently in an **alpha** state and should be considered exp
     * [x] Vector database / text similarity
     * [x] Heuristics via [YARA](https://virustotal.github.io/yara)
     * [x] Transformer model
-    * [ ] Prompt-response similarity
+    * [x] Prompt-response similarity
     * [ ] Relevance (via [LiteLLM](https://docs.litellm.ai/docs/))
 * Supports [local embeddings](https://www.sbert.net/) and/or [OpenAI](https://platform.openai.com/)
 * Signatures and embeddings for common attacks
 * Custom detections via YARA signatures
+* Streamlit web UI playground
 
 ## Background 🏗️
 
