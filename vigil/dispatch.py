@@ -1,6 +1,7 @@
 import uuid
 import math
-import logging
+
+from loguru import logger
 
 from typing import List, Dict
 
@@ -9,10 +10,6 @@ from vigil.schema import ScanModel
 from vigil.schema import ResponseModel
 
 from vigil.common import timestamp_str
-
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 messages = {
@@ -48,10 +45,10 @@ class Manager:
         if not input_prompt:
             resp.errors.append('Input prompt value is empty')
             resp.status = 'failed'
-            logger.error(f'[{self.name}] input prompt value is empty')
+            logger.error(f'Input prompt value is empty')
             return resp.dict()
 
-        logging.info(f'[{self.name}] Dispatching scan request id={resp.uuid}')
+        logger.info(f'Dispatching scan request id={resp.uuid}')
 
         scan_results = self.dispatcher.run(
             input_prompt=input_prompt,
@@ -71,7 +68,7 @@ class Manager:
                     and message not in resp.messages:
                 resp.messages.append(message)
 
-        logging.info(f'[{self.name}] returning response object id={resp.uuid}')
+        logger.info(f'Returning response object id={resp.uuid}')
 
         return resp.dict()
 
@@ -91,14 +88,14 @@ class Scanner:
             )
 
             try:
-                logger.info(f'[{self.name}] Running scanner: {scanner.name}; id={scan_id}')
+                logger.info(f'Running scanner: {scanner.name}; id={scan_id}')
 
                 updated = scanner.analyze(scan_obj, scan_id)
                 response[scanner.name] = [res.dict() for res in updated.results]
-                logger.info(f'[{self.name}] Successfully ran scanner: {scanner.name} id={scan_id}')
+                logger.success(f'Successfully ran scanner: {scanner.name} id={scan_id}')
 
             except Exception as err:
-                logger.error(f'[{self.name}] Failed to run scanner: {scanner.name}, Error: {str(err)} id={scan_id}')
+                logger.error(f'Failed to run scanner: {scanner.name}, Error: {str(err)} id={scan_id}')
                 response[scanner.name] = {'error': str(err)}
 
         return response

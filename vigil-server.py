@@ -2,14 +2,15 @@
 import os
 import sys
 import argparse
-import logging
+
+from loguru import logger
 
 from collections import OrderedDict
 from flask import Flask, request, jsonify, abort
 
 from vigil.config import Config
 
-from vigil.scanners.yara import YaraScanner
+#from vigil.scanners.yara import YaraScanner
 from vigil.scanners.vectordb import VectorScanner
 from vigil.scanners.transformer import TransformerScanner
 from vigil.scanners.similarity import SimilarityScanner
@@ -18,12 +19,11 @@ from vigil.vectordb import VectorDB
 from vigil.dispatch import Manager
 
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger.add('logs/vigil-cli.log', format="{time} {level} {message}", level="INFO")
+
 
 app = Flask(__name__)
 
-log_name = 'server:main'
 
 
 class LRUCache:
@@ -49,7 +49,7 @@ class LRUCache:
 def setup_yara_scanner(conf):
     yara_dir = conf.get_val('scanner:yara', 'rules_dir')
     if yara_dir is None:
-        logger.error(f'[{log_name}] No yara rules directory set in config')
+        logger.error('No yara rules directory set in config')
         sys.exit(1)
 
     yara_scanner = YaraScanner(config_dict={'rules_dir': yara_dir})
@@ -64,21 +64,21 @@ def setup_vectordb_scanner(conf):
     vdb_n_results = conf.get_val('scanner:vectordb', 'n_results')
 
     if not os.path.isdir(vdb_dir):
-        logger.error(f'[{log_name}] VectorDB directory not found: {vdb_dir}')
+        logger.error(f'VectorDB directory not found: {vdb_dir}')
         sys.exit(1)
 
     # text embedding model
     emb_model = conf.get_val('embedding', 'model')
     if emb_model is None:
-        logger.error(f'[{log_name}] No embedding model set in config file')
+        logger.error('No embedding model set in config file')
         sys.exit(1)
 
     if emb_model == 'openai':
-        logger.info(f'[{log_name}] Using OpenAI embedding model')
+        logger.info(f'Using OpenAI embedding model')
         openai_key = conf.get_val('embedding', 'openai_api_key')
 
         if openai_key is None:
-            logger.error(f'[{log_name}] OpenAI embedding model selected but no key or model name set in config')
+            logger.error('OpenAI embedding model selected but no key or model name set in config')
             sys.exit(1)
 
     global vectordb
@@ -103,7 +103,7 @@ def setup_similarity_scanner(conf):
     emb_model = conf.get_val('embedding', 'model')
 
     if not sim_threshold or not emb_model:
-        logger.error(f'[{log_name}] Missing configurations for Similarity Scanner')
+        logger.error('Missing configurations for Similarity Scanner')
         sys.exit(1)
 
     if emb_model == 'openai':
@@ -121,7 +121,7 @@ def setup_transformer_scanner(conf):
     threshold = conf.get_val('scanner:transformer', 'threshold')
 
     if not lm_name or not threshold:
-        logger.error(f'[{log_name}] Missing configurations for Transformer Scanner')
+        logger.error('Missing configurations for Transformer Scanner')
         sys.exit(1)
 
     return TransformerScanner(config_dict={
@@ -134,11 +134,11 @@ def check_field(data, field_name: str, field_type: type) -> str:
     field_data = data.get(field_name, "")
 
     if not field_data:
-        logger.error(f'[{log_name}] ({request.path}) Missing "{field_name}" field')
+        logger.error(f'({request.path}) Missing "{field_name}" field')
         abort(400, f'Missing "{field_name}" field')
 
     if not isinstance(field_data, field_type):
-        logger.error(f'[{log_name}] ({request.path}) Invalid data type; "{field_name}" value must be a {field_type.__name__}')
+        logger.error(f'({request.path}) Invalid data type; "{field_name}" value must be a {field_type.__name__}')
         abort(400, f'Invalid data type; "{field_name}" value must be a {field_type.__name__}')
 
     return field_data
@@ -147,7 +147,7 @@ def check_field(data, field_name: str, field_type: type) -> str:
 @app.route('/settings', methods=['GET'])
 def show_settings():
     """ Return the current configuration settings """
-    logger.info(f'[{log_name}] ({request.path}) Returning config dictionary')
+    logger.info(f'({request.path}) Returning config dictionary')
     config_dict = {s: dict(conf.config.items(s)) for s in conf.config.sections()}
 
     if 'embedding' in config_dict:
@@ -159,14 +159,14 @@ def show_settings():
 @app.route('/analyze/response', methods=['POST'])
 def analyze_response():
     """ Analyze a prompt and its response """
-    logger.info(f'[{log_name}] ({request.path}) Received request')
+    logger.info('Received request')
 
     input_prompt = check_field(request.json, 'prompt', str)
     out_data = check_field(request.json, 'response', str)
 
     result = out_mgr.perform_scan(input_prompt, out_data)
 
-    logger.info(f'[{log_name}] ({request.path}) Returning response')
+    logger.info('Returning response')
 
     return jsonify(result)
 
@@ -174,19 +174,19 @@ def analyze_response():
 @app.route('/analyze/prompt', methods=['POST'])
 def analyze_prompt():
     """ Analyze a prompt against a set of scanners """
-    logger.info(f'[{log_name}] ({request.path}) Received request')
+    logger.info('Received request')
 
     input_prompt = check_field(request.json, 'prompt', str)
     cached_response = lru_cache.get(input_prompt)
 
     if cached_response:
-        logger.info(f'[{log_name}] ({request.path}) Found response in cache!')
+        logger.info('Found response in cache!')
         cached_response['cached'] = True
         return jsonify(cached_response)
 
     result = in_mgr.perform_scan(input_prompt)
 
-    logger.info(f'[{log_name}] ({request.path}) Returning response')
+    logger.info('Returning response')
     lru_cache.set(input_prompt, result)
 
     return jsonify(result)
@@ -209,12 +209,12 @@ if __name__ == '__main__':
 
     in_scanners = conf.get_val('scanners', 'input_scanners')
     if in_scanners is None:
-        logger.error(f'[{log_name}] No input scanners set in config')
+        logger.error('No input scanners set in config')
         sys.exit(1)
 
     out_scanners = conf.get_val('scanners', 'output_scanners')
     if out_scanners is None:
-        logger.warn(f'[{log_name}] No output scanners set in config; continuing')
+        logger.warn('No output scanners set in config; continuing')
 
     try:
         in_scanners = in_scanners.split(',')
@@ -240,7 +240,7 @@ if __name__ == '__main__':
     for name in out_scanners:
         setup_fn = SCANNER_SETUPS.get(name)
         if not setup_fn:
-            logger.warning(f'[{log_name}] Unsupported scanner set in config: {name}')
+            logger.warning(f'Unsupported scanner set in config: {name}')
             continue
         scanner = setup_fn(conf)
         outputs.append(scanner)
@@ -248,7 +248,7 @@ if __name__ == '__main__':
     for name in in_scanners:
         setup_fn = SCANNER_SETUPS.get(name)
         if not setup_fn:
-            logger.warning(f'[{log_name}] Unsupported scanner set in config: {name}')
+            logger.warning(f'Unsupported scanner set in config: {name}')
             continue
         scanner = setup_fn(conf)
         inputs.append(scanner)

@@ -3,15 +3,16 @@ import os
 import sys
 import json
 import argparse
-import logging
 
 from pygments import lexers
 from pygments import highlight
 from pygments import formatters
 
+from loguru import logger
+
 from vigil.config import Config
 
-from vigil.scanners.yara import YaraScanner
+# from vigil.scanners.yara import YaraScanner
 from vigil.scanners.transformer import TransformerScanner
 from vigil.scanners.vectordb import VectorScanner
 from vigil.scanners.similarity import SimilarityScanner
@@ -20,16 +21,13 @@ from vigil.dispatch import Manager
 from vigil.vectordb import VectorDB
 
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-log_name = 'cli:main'
+logger.add('logs/vigil-cli.log', format="{time} {level} {message}", level="INFO")
 
 
 def setup_yara_scanner(conf):
     yara_dir = conf.get_val('scanner:yara', 'rules_dir')
     if yara_dir is None:
-        logger.error(f'[{log_name}] No yara rules directory set in config')
+        logger.error(f'No yara rules directory set in config')
         sys.exit(1)
 
     yara_scanner = YaraScanner(config_dict={'rules_dir': yara_dir})
@@ -44,21 +42,21 @@ def setup_vectordb_scanner(conf):
     vdb_n_results = conf.get_val('scanner:vectordb', 'n_results')
 
     if not os.path.isdir(vdb_dir):
-        logger.error(f'[{log_name}] VectorDB directory not found: {vdb_dir}')
+        logger.error(f'VectorDB directory not found: {vdb_dir}')
         sys.exit(1)
 
     # text embedding model
     emb_model = conf.get_val('embedding', 'model')
     if emb_model is None:
-        logger.error(f'[{log_name}] No embedding model set in config file')
+        logger.error('No embedding model set in config file')
         sys.exit(1)
 
     if emb_model == 'openai':
-        logger.info(f'[{log_name}] Using OpenAI embedding model')
+        logger.info('Using OpenAI embedding model')
         openai_key = conf.get_val('embedding', 'openai_api_key')
 
         if openai_key is None:
-            logger.error(f'[{log_name}] OpenAI embedding model selected but no key or model name set in config')
+            logger.error('OpenAI embedding model selected but no key or model name set in config')
             sys.exit(1)
 
     global vectordb
@@ -83,7 +81,7 @@ def setup_similarity_scanner(conf):
     emb_model = conf.get_val('embedding', 'model')
 
     if not sim_threshold or not emb_model:
-        logger.error(f'[{log_name}] Missing configurations for Similarity Scanner')
+        logger.error('Missing configurations for Similarity Scanner')
         sys.exit(1)
 
     if emb_model == 'openai':
@@ -101,7 +99,7 @@ def setup_transformer_scanner(conf):
     threshold = conf.get_val('scanner:transformer', 'threshold')
 
     if not lm_name or not threshold:
-        logger.error(f'[{log_name}] Missing configurations for Transformer Scanner')
+        logger.error('Missing configurations for Transformer Scanner')
         sys.exit(1)
 
     return TransformerScanner(config_dict={
@@ -144,12 +142,12 @@ if __name__ == '__main__':
 
     in_scanners = conf.get_val('scanners', 'input_scanners')
     if in_scanners is None:
-        logger.error(f'[{log_name}] No input scanners set in config')
+        logger.error('No input scanners set in config')
         sys.exit(1)
 
     out_scanners = conf.get_val('scanners', 'output_scanners')
     if out_scanners is None:
-        logger.warn(f'[{log_name}] No output scanners set in config; continuing')
+        logger.warn('No output scanners set in config; continuing')
 
     try:
         in_scanners = in_scanners.split(',')
@@ -175,7 +173,7 @@ if __name__ == '__main__':
     for name in out_scanners:
         setup_fn = SCANNER_SETUPS.get(name)
         if not setup_fn:
-            logger.warning(f'[{log_name}] Unsupported scanner set in config: {name}')
+            logger.warning(f'Unsupported scanner set in config: {name}')
             continue
         scanner = setup_fn(conf)
         outputs.append(scanner)
@@ -183,7 +181,7 @@ if __name__ == '__main__':
     for name in in_scanners:
         setup_fn = SCANNER_SETUPS.get(name)
         if not setup_fn:
-            logger.warning(f'[{log_name}] Unsupported scanner set in config: {name}')
+            logger.warning(f'Unsupported scanner set in config: {name}')
             continue
         scanner = setup_fn(conf)
         inputs.append(scanner)
