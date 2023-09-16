@@ -1,3 +1,5 @@
+import uuid
+import math
 import logging
 
 from typing import List, Dict
@@ -13,17 +15,35 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+messages = {
+    'scanner:yara': 'Potential prompt injection detected: YARA signature(s)',
+    'scanner:transformer': 'Potential prompt injection detected: transformer model',
+    'scanner:vectordb': 'Potential prompt injection detected: vector similarity',
+    'scanner:response-similarity': 'Potential prompt injection detected: prompt-response similarity'
+}
+
+
+def calculate_entropy(text):
+    prob = [text.count(c) / len(text) for c in set(text)]
+    entropy = -sum(p * math.log2(p) for p in prob)
+    return entropy
+
+
 class Manager:
     def __init__(self, scanners: List[BaseScanner]):
         self.name = 'dispatch:mgr'
         self.dispatcher = Scanner(scanners)
 
-    def perform_scan(self, input_prompt: str) -> dict:
+    def perform_scan(self, input_prompt: str, input_resp: str = None) -> dict:
         resp = ResponseModel(
             status='success',
             timestamp=timestamp_str(),
-            input_prompt=input_prompt
+            prompt=input_prompt,
+            prompt_response=input_resp,
+            prompt_entropy=calculate_entropy(input_prompt),
         )
+
+        resp.uuid = str(resp.uuid)
 
         if not input_prompt:
             resp.errors.append('Input prompt value is empty')
@@ -31,12 +51,12 @@ class Manager:
             logger.error(f'[{self.name}] input prompt value is empty')
             return resp.dict()
 
-        scan_obj = ScanModel(input_prompt=input_prompt)
-        logging.info(f'[{self.name}] New scan object; id={scan_obj.uuid}')
+        logging.info(f'[{self.name}] Dispatching scan request id={resp.uuid}')
 
         scan_results = self.dispatcher.run(
-            scan_obj.input_prompt,
-            scan_obj.uuid
+            input_prompt=input_prompt,
+            input_resp=input_resp,
+            scan_id={resp.uuid}
         )
 
         for scanner_name, results in scan_results.items():
@@ -46,20 +66,12 @@ class Manager:
             else:
                 resp.results[scanner_name] = {'matches': results}
 
-            # Additional logic for message updates
-            if scanner_name == 'scanner:yara' and len(results) > 0:
-                if 'Potential prompt injection detected: YARA signature(s)' not in resp.messages:          
-                    resp.messages.append('Potential prompt injection detected: YARA signature(s)')
+        for scanner_name, message in messages.items():
+            if scanner_name in scan_results and len(scan_results[scanner_name]) > 0 \
+                    and message not in resp.messages:
+                resp.messages.append(message)
 
-            if scanner_name == 'scanner:transformer' and len(results) > 0:
-                if 'Potential prompt injection detected: transformer model' not in resp.messages:
-                    resp.messages.append('Potential prompt injection detected: transformer model')
-
-            if scanner_name == 'scanner:vectordb' and len(results) > 0:
-                if 'Potential prompt injection detected: vector similarity' not in resp.messages:
-                    resp.messages.append('Potential prompt injection detected: vector similarity')
-
-        logging.info(f'[{self.name}] returning response object; id={scan_obj.uuid}')
+        logging.info(f'[{self.name}] returning response object id={resp.uuid}')
 
         return resp.dict()
 
@@ -69,19 +81,24 @@ class Scanner:
         self.name = 'dispatch:scan'
         self.scanners = scanners
 
-    def run(self, input_data: str, scan_uuid: str) -> Dict:
-        logger.info(f'[{self.name}] new task id={scan_uuid}')
+    def run(self, input_prompt: str, scan_id: uuid.uuid4, input_resp: str = None) -> Dict:
         response = {}
 
         for scanner in self.scanners:
+            scan_obj = ScanModel(
+                prompt=input_prompt,
+                prompt_response=input_resp
+            )
+
             try:
-                logger.info(f'[{self.name}] Running scanner: {scanner.name}')
-                results = scanner.analyze(input_data, scan_uuid)
-                response[scanner.name] = [res.dict() for res in results]
-                logger.info(f'[{self.name}] Successfully ran scanner: {scanner.name}')
+                logger.info(f'[{self.name}] Running scanner: {scanner.name}; id={scan_id}')
+
+                updated = scanner.analyze(scan_obj, scan_id)
+                response[scanner.name] = [res.dict() for res in updated.results]
+                logger.info(f'[{self.name}] Successfully ran scanner: {scanner.name} id={scan_id}')
 
             except Exception as err:
-                logger.error(f'[{self.name}] Failed to run scanner: {scanner.name}, Error: {str(err)}')
+                logger.error(f'[{self.name}] Failed to run scanner: {scanner.name}, Error: {str(err)} id={scan_id}')
                 response[scanner.name] = {'error': str(err)}
 
         return response

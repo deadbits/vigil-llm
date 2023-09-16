@@ -6,6 +6,7 @@ from chromadb.config import Settings
 from chromadb.utils import embedding_functions
 
 from vigil.schema import BaseScanner
+from vigil.schema import ScanModel
 from vigil.schema import VectorMatch
 
 logging.basicConfig(level=logging.INFO)
@@ -20,7 +21,7 @@ class VectorScanner(BaseScanner):
             logger.info(f'[{self.name}] Using OpenAI embedding function')
             self.embed_fn = embedding_functions.OpenAIEmbeddingFunction(
                 api_key=config_dict['openai_key'],
-                model_name=config_dict['openai_model']
+                model_name='text-embedding-ada-002'
             )
         else:
             logger.info(f'[{self.name}] Using SentenceTransformer embedding function: {config_dict["embed_fn"]}')
@@ -53,28 +54,28 @@ class VectorScanner(BaseScanner):
         )
         return self.collection
 
-    def analyze(self, input_data: str, scan_uuid: uuid.uuid4) -> list:
-        logger.info(f'[{self.name}] Performing scan; id="{scan_uuid}"')
-        results = []
+    def analyze(self, scan_obj: ScanModel, scan_id: uuid.uuid4) -> ScanModel:
+        logger.info(f'[{self.name}] Performing scan; id="{scan_id}"')
 
         try:
             matches = self.collection.query(
-                query_texts=[input_data],
+                query_texts=[scan_obj.prompt],
                 n_results=self.n_results
             )
         except Exception as err:
-            logger.error(f'[{self.name}] Failed to perform vector scan; id="{scan_uuid}" error="{err}"')
-            return results
+            logger.error(f'[{self.name}] Failed to perform vector scan; id="{scan_id}" error="{err}"')
+            return scan_obj
 
         for match in zip(matches["documents"][0], matches["metadatas"][0], matches["distances"][0]):
             distance = match[2]
 
             if distance < self.threshold:
+                # with chromadb a lower distance means the vectors are more similar
                 m = VectorMatch(text=match[0], metadata=match[1], distance=match[2])
-                logger.info(f'[{self.name}] Matched vector text="{m.text}" threshold="{self.threshold}" distance="{m.distance}" id="{scan_uuid}"')
-                results.append(m)
+                logger.info(f'[{self.name}] Matched vector text="{m.text}" threshold="{self.threshold}" distance="{m.distance}" id="{scan_id}"')
+                scan_obj.results.append(m)
 
-        if len(results) == 0:
-            logger.info(f'[{self.name}] No matches found; id="{scan_uuid}"')
+        if len(scan_obj.results) == 0:
+            logger.info(f'[{self.name}] No matches found; id="{scan_id}"')
 
-        return results
+        return scan_obj

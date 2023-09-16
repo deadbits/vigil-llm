@@ -4,6 +4,7 @@ import uuid
 import logging
 
 from vigil.schema import YaraMatch
+from vigil.schema import ScanModel
 from vigil.schema import BaseScanner
 
 logging.basicConfig(level=logging.INFO)
@@ -51,27 +52,26 @@ class YaraScanner(BaseScanner):
             return True
         return False
 
-    def analyze(self, input_data: str, scan_uuid: uuid.uuid4) -> list:
+    def analyze(self, scan_obj: ScanModel, scan_id: uuid.uuid4) -> ScanModel:
         """Run scan against input data and return list of YaraMatchs"""
-        logger.info(f'[{self.name}] Performing scan; id="{scan_uuid}"')
-        results = []
+        logger.info(f'[{self.name}] Performing scan; id="{scan_id}"')
 
-        if input_data.strip() == '':
-            logger.info(f'[{self.name}] No input data; id="{scan_uuid}"')
-            return results
+        if scan_obj.prompt.strip() == '':
+            logger.info(f'[{self.name}] No input data; id="{scan_id}"')
+            return scan_obj
 
         try:
-            matches = self.compiled_rules.match(data=input_data)
+            matches = self.compiled_rules.match(data=scan_obj.prompt)
         except Exception as err:
-            logger.error(f'[{self.name}] Failed to perform yara scan; id="{scan_uuid}" error="{err}"')
-            return results
+            logger.error(f'[{self.name}] Failed to perform yara scan; id="{scan_id}" error="{err}"')
+            return scan_obj
 
         for match in matches:
             m = YaraMatch(rule_name=match.rule, tags=match.tags, category=match.meta.get('category', None))
             logger.info(f'[{self.name}] Matched rule rule="{m.rule_name} tags="{m.tags}" category="{m.category}"')
-            results.append(m)
+            scan_obj.results.append(m)
 
-        if len(results) == 0:
-            logger.info(f'[{self.name}] No matches found; id="{scan_uuid}"')
+        if len(scan_obj.results) == 0:
+            logger.info(f'[{self.name}] No matches found; id="{scan_id}"')
 
-        return results
+        return scan_obj

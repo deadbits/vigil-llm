@@ -4,6 +4,7 @@ import logging
 from transformers import pipeline
 
 from vigil.schema import ModelMatch
+from vigil.schema import ScanModel
 from vigil.schema import BaseScanner
 
 logging.basicConfig(level=logging.INFO)
@@ -24,35 +25,35 @@ class TransformerScanner(BaseScanner):
 
         logger.info(f'[{self.name}] Scanner loaded: {self.model_name}')
 
-    def analyze(self, input_data: str, scan_uuid: uuid.uuid4) -> list:
-        logger.info(f'[{self.name}] Performing scan; id="{scan_uuid}"')
+    def analyze(self, scan_obj: ScanModel, scan_id: uuid.uuid4) -> ScanModel:
+        logger.info(f'[{self.name}] Performing scan; id={scan_id}')
 
-        results, hits = [], []
+        hits = []
 
-        if input_data.strip() == '':
-            logger.info(f'[{self.name}] No input data; id={scan_uuid}')
-            return results
+        if scan_obj.prompt.strip() == '':
+            logger.info(f'[{self.name}] No input data; id={scan_id}')
+            return scan_obj
 
         try:
             hits = self.pipeline(
-                input_data
+                scan_obj.prompt
             )
         except Exception as err:
-            logger.error(f'[{self.name}] Pipeline error: {err}')
-            return results
+            logger.error(f'[{self.name}] Pipeline error: {err} id={scan_id}')
+            return scan_obj
 
         if len(hits) > 0:
             for rec in hits:
                 if rec['label'] == 'INJECTION':
                     if rec['score'] > self.threshold:
-                        logger.info(f'[{self.name}] Detected prompt injection; score={rec["score"]} threshold={self.threshold} id={scan_uuid}')
+                        logger.info(f'[{self.name}] Detected prompt injection; score={rec["score"]} threshold={self.threshold} id={scan_id}')
                     else:
                         logger.info(
                             f'[{self.name}] Detected prompt injection below threshold (may warrant manual review); \
-                            score={rec["score"]} threshold={self.threshold} id={scan_uuid}'
+                            score={rec["score"]} threshold={self.threshold} id={scan_id}'
                         )
 
-                    results.append(
+                    scan_obj.results.append(
                         ModelMatch(
                             model_name=self.model_name,
                             score=rec['score'],
@@ -62,6 +63,6 @@ class TransformerScanner(BaseScanner):
                     )
 
         else:
-            logger.info(f'[{self.name}] No hits returned by model; id={scan_uuid}')
+            logger.info(f'[{self.name}] No hits returned by model; id={scan_id}')
 
-        return results
+        return scan_obj
