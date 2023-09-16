@@ -21,8 +21,6 @@ rule ContainAPIToken
 
         $gcp = /(google|gcp|youtube|drive|yt)(.{0,20})?['\"][AIza[0-9a-z\\-_]{35}]['\"]/
 
-        $heroku = /[h|H][e|E][r|R][o|O][k|K][u|U].{0,30}[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}/
-
         $linkedin = /linkedin(.{0,20})?['\"][0-9a-z]{16}/
 
         $mailchimp = /[0-9a-f]{32}-us[0-9]{1,2}/
