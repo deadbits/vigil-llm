@@ -2,7 +2,7 @@
 
 ⚡ Security scanner for LLM prompts ⚡
 
-![Version](https://img.shields.io/badge/Version-v0.5.1-alpha?style=flat-square&labelColor=blue&color=black) alpha
+![Version](https://img.shields.io/badge/Version-v0.5.1-alpha?style=flat-square&labelColor=blue&color=black)
 
 ## Overview 🏕️
 
