@@ -12,7 +12,7 @@ from loguru import logger
 
 from vigil.config import Config
 
-# from vigil.scanners.yara import YaraScanner
+from vigil.scanners.yara import YaraScanner
 from vigil.scanners.transformer import TransformerScanner
 from vigil.scanners.vectordb import VectorScanner
 from vigil.scanners.similarity import SimilarityScanner
@@ -21,7 +21,7 @@ from vigil.dispatch import Manager
 from vigil.vectordb import VectorDB
 
 
-logger.add('logs/vigil-cli.log', format="{time} {level} {message}", level="INFO")
+logger.add('logs/cli.log', format="{time} {level} {message}", level="INFO")
 
 
 def setup_yara_scanner(conf):

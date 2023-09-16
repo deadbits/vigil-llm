@@ -10,7 +10,7 @@ from flask import Flask, request, jsonify, abort
 
 from vigil.config import Config
 
-#from vigil.scanners.yara import YaraScanner
+from vigil.scanners.yara import YaraScanner
 from vigil.scanners.vectordb import VectorScanner
 from vigil.scanners.transformer import TransformerScanner
 from vigil.scanners.similarity import SimilarityScanner
@@ -19,7 +19,7 @@ from vigil.vectordb import VectorDB
 from vigil.dispatch import Manager
 
 
-logger.add('logs/vigil-cli.log', format="{time} {level} {message}", level="INFO")
+logger.add('logs/server.log', format="{time} {level} {message}", level="INFO")
 
 
 app = Flask(__name__)

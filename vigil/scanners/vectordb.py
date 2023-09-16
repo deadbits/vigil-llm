@@ -12,6 +12,7 @@ class VectorScanner(BaseScanner):
         self.name = 'scanner:vectordb'
         self.database = db_client
         self.threshold = config_dict['threshold']
+        logger.info('Loaded scanner.')
 
     def analyze(self, scan_obj: ScanModel, scan_id: uuid.uuid4) -> ScanModel:
         logger.info(f'Performing scan; id="{scan_id}"')

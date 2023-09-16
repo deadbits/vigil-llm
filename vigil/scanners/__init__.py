@@ -9,9 +9,8 @@ __description__ = "LLM security scanner"
 
 
 __all__ = [
-    'VectorDB',
+    'VectorScanner',
     'TransformerScanner',
     'YaraScanner'
     'SimilarityScanner'
 ]
-
