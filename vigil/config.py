@@ -1,6 +1,7 @@
 import os
 import sys
-import logging
+
+from loguru import logger
 
 import configparser
 
@@ -12,10 +13,10 @@ class Config:
         self.config_file = config_file
         self.config = configparser.ConfigParser()
         if not os.path.exists(self.config_file):
-            logging.error(f'[config] Config file not found: {self.config_file}')
+            logger.error(f'Config file not found: {self.config_file}')
             sys.exit(1)
 
-        logging.info(f'[config] Loading config file: {self.config_file}')
+        logger.info(f'Loading config file: {self.config_file}')
         self.config.read(config_file)
 
     def get_val(self, section: str, key: str) -> Optional[str]:
@@ -24,7 +25,7 @@ class Config:
         try:
             answer = self.config.get(section, key)
         except Exception as err:
-            logging.error(f'[config] Config file missing section: {section} - {err}')
+            logger.error(f'Config file missing section: {section} - {err}')
 
         return answer
 
@@ -32,5 +33,5 @@ class Config:
         try:
             return self.config.getboolean(section, key)
         except Exception as err:
-            logging.error(f'[config] Failed to parse boolean - returning default "False": {section} - {err}')
+            logger.error(f'Failed to parse boolean - returning default "False": {section} - {err}')
             return default

@@ -1,5 +1,6 @@
 import uuid
-import logging
+
+from loguru import logger
 
 from typing import Dict
 
@@ -9,10 +10,6 @@ from vigil.schema import SimilarityMatch
 
 from vigil.embedding import Embedder
 from vigil.embedding import cosine_similarity
-
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 class SimilarityScanner(BaseScanner):
@@ -25,10 +22,10 @@ class SimilarityScanner(BaseScanner):
             config_dict['openai_key'] if 'openai_key' in config_dict else None,
         )
 
-        logger.info(f'[{self.name}] Loaded scanner.')
+        logger.success('Loaded scanner.')
 
     def analyze(self, scan_obj: ScanModel, scan_id: uuid.uuid4) -> ScanModel:
-        logger.info(f'[{self.name}] Performing scan; id={scan_id}')
+        logger.info(f'Performing scan; id={scan_id}')
 
         input_embedding = self.embedder.generate(scan_obj.prompt)
         output_embedding = self.embedder.generate(scan_obj.prompt_response)
@@ -41,10 +38,10 @@ class SimilarityScanner(BaseScanner):
                 threshold=self.threshold,
                 message='Response is not similar to prompt.',
             )
-            logger.info(f'[{self.name}] Response is not similar to prompt.')
+            logger.info('Response is not similar to prompt.')
             scan_obj.results.append(m)
 
         if len(scan_obj.results) == 0:
-            logger.info(f'[{self.name}] Response is similar to prompt.')
+            logger.info('Response is similar to prompt.')
 
         return scan_obj

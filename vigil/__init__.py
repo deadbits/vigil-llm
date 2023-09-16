@@ -15,8 +15,12 @@ from vigil.schema import ScanModel
 from vigil.schema import VectorMatch
 from vigil.schema import YaraMatch
 from vigil.schema import ModelMatch
-# from vigil.schema import ModerationMatch
+from vigil.schema import SimilarityMatch
 
+from vigil.embedding import Embedder
+from vigil.embedding import cosine_similarity
+
+from vigil.vectordb import VectorDB
 
 __version__ = "0.5.1"
 __app__ = "vigil"
@@ -34,5 +38,8 @@ __all__ = [
     'VectorMatch',
     'YaraMatch',
     'ModelMatch'
-    #'ModerationMatch'
+    'SimilarityMatch',
+    'Embedder',
+    'cosine_similarity',
+    'VectorDB'
 ]
