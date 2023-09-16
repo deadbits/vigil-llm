@@ -22,7 +22,7 @@ This application is currently in an **alpha** state. Work is ongoing to expand d
     * [x] Vector database / text similarity
     * [x] Heuristics via [YARA](https://virustotal.github.io/yara)
     * [x] Transformer model
-    * [ ] Moderation model
+    * [ ] Prompt-response similarity
     * [ ] Relevance (via LLM)
 * Supports [local embeddings](https://www.sbert.net/) and/or [OpenAI](https://platform.openai.com/)
     * [ ] Local LLM for relevance scanner
@@ -118,9 +118,7 @@ Modify the configuration options according to your needs. This includes setting 
 > [!IMPORTANT]
 > Your VectorDB scanner embedding model setting must match the model used to generate the embeddings loaded into the database, or similarity search will not work. For example, if you used the Vigil datasets (above), the `model` field must be set to `openai` or ``all-MiniLM-L6-v2`.
 
-If you want to use the Vigil datasets with a different Sentence Transformers model, you can still download the datasets but prior to running `utils.parquet2vdb` execute the `utils.parquet2emb.py` script to load the Parquet files and embed the text with the model of your choice. This creates a new Parquet dataset you can load into the database using `utils.parqeut2vdb` [^1].
-
-[^1]: Alternatively, you can skip `parquet2emb` and run `parquet2vdb` directly. But this will only load the embeddings into the database, you will not have a clean copy of the data saved to disk outside of ChromaDB.
+If you want to use the Vigil datasets with a different Sentence Transformers model, you can still download the datasets but prior to running `utils.parquet2vdb` execute the `utils.parquet2emb.py` script to load the Parquet files and embed the text with the model of your choice. This creates a new Parquet dataset you can load into the database using `utils.parqeut2vdb`.
 
 ### Running the Server
 
@@ -263,16 +261,4 @@ curl http://localhost:5000/settings
 }
 
 ```
-
-## Roadmap 🗺️
-Vigil is currently in a beta state and work is ongoing to improve its capabilities. Here are some of the primary feature and improvements planned for the near future:
-
-* [ ] YARA Rule Management via API and CLI
-* [ ] Add New Embeddings via API and CLI
-* [ ] LLM Relevance Scanner
-    * [ ] OpenAI
-    * [ ] Local model
-* [ ] Improved Cache (Redis or similar)
-* [ ] Hosted documentation
-* [ ] Playground Web UI
 
