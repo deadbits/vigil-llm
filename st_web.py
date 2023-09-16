@@ -1,7 +1,9 @@
-import streamlit as st
-import requests
 import json
 import os
+import yara
+import requests
+import streamlit as st
+
 
 st.title("Prompt Analysis")
 
@@ -10,19 +12,24 @@ if 'history' not in st.session_state:
     st.session_state['history'] = []
 
 page = st.sidebar.radio(
-    "Select a page:", 
-    ["Prompt Analysis","Upload YARA Rule", "History", "Settings"]
+    "Select a page:",
+    [
+        "Prompt Analysis",
+        "Upload YARA Rule",
+        "History",
+        "Settings"
+    ]
 )
 
 if page == "Prompt Analysis":
     # Text input for the user to enter the prompt
-    prompt = st.text_input("Enter your prompt:")
+    prompt = st.text_area("Enter prompt:")
 
     # If the user has entered a prompt and clicks the submit button
     if prompt and st.button("Submit"):
         # Send POST request to server with prompt
         response = requests.post(
-            "http://localhost:5000/analyze",
+            "http://localhost:5000/analyze/prompt",
             headers={"Content-Type": "application/json"},
             data=json.dumps({"prompt": prompt})
         )
@@ -61,11 +68,13 @@ if page == "Prompt Analysis":
                     st.write(match)
         else:
             st.error("Failed to get a response from the server.")
-         
+
 elif page == "History":
     st.title("History")
     # Sort history by timestamp (newest first)
-    sorted_history = sorted(st.session_state['history'], key=lambda x: x['timestamp'], reverse=True)
+    sorted_history = sorted(
+        st.session_state['history'], key=lambda x: x['timestamp'], reverse=True
+    )
 
     for item in sorted_history:
         st.write("Timestamp:", item["timestamp"])
@@ -81,9 +90,7 @@ elif page == "Settings":
     if response.status_code == 200:
         settings_data = response.json()
 
-        # Display settings in a structured format
-        for key, value in settings_data.items():
-            st.write(f"{key}: {value}")
+        st.json(settings_data)
     else:
         st.error("Failed to retrieve settings from the server.")
 
@@ -96,7 +103,7 @@ elif page == "Upload YARA Rule":
     {
         meta:
             category = "Prompt Injection"
-            description = "Detects prompts that contain some custom strings"
+            description = "Detects prompts that contain some custom strings or regex"
         strings:
             ...
         condition:
