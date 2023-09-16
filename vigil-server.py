@@ -93,14 +93,14 @@ def setup_vectordb_scanner(conf):
 def setup_similarity_scanner(conf):
     sim_threshold = conf.get_val('scanner:similarity', 'threshold')
     emb_model = conf.get_val('embedding', 'model')
-    
+
     if not sim_threshold or not emb_model:
         logger.error(f'[{log_name}] Missing configurations for Similarity Scanner')
         sys.exit(1)
-        
+
     if emb_model == 'openai':
         openai_key = conf.get_val('embedding', 'openai_api_key')
-    
+
     return SimilarityScanner(config_dict={
         'threshold': sim_threshold,
         'model_name': emb_model,
@@ -111,15 +111,16 @@ def setup_similarity_scanner(conf):
 def setup_transformer_scanner(conf):
     lm_name = conf.get_val('scanner:transformer', 'model')
     threshold = conf.get_val('scanner:transformer', 'threshold')
-    
+
     if not lm_name or not threshold:
         logger.error(f'[{log_name}] Missing configurations for Transformer Scanner')
         sys.exit(1)
-        
+
     return TransformerScanner(config_dict={
         'model': lm_name,
         'threshold': threshold
     })
+
 
 def check_field(data, field_name: str, field_type: type) -> str:
     field_data = data.get(field_name, "")
