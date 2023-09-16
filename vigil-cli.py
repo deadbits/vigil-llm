@@ -17,6 +17,7 @@ from vigil.scanners.vectordb import VectorScanner
 from vigil.scanners.similarity import SimilarityScanner
 
 from vigil.dispatch import Manager
+from vigil.vectordb import VectorDB
 
 
 logging.basicConfig(level=logging.INFO)
@@ -60,14 +61,21 @@ def setup_vectordb_scanner(conf):
             logger.error(f'[{log_name}] OpenAI embedding model selected but no key or model name set in config')
             sys.exit(1)
 
-    return VectorScanner(config_dict={
-        'collection_name': vdb_collection,
-        'embed_fn': emb_model,
-        'openai_key': openai_key if openai_key else None,
-        'threshold': vdb_threshold,
-        'db_dir': vdb_dir,
-        'n_results': vdb_n_results
-    })
+    global vectordb
+    vectordb = VectorDB(
+        config_dict={
+            'db_dir': vdb_dir,
+            'collection_name': vdb_collection,
+            'n_results': vdb_n_results,
+            'embed_fn': emb_model,
+            'openai_key': openai_key if openai_key else None
+        }
+    )
+
+    return VectorScanner(
+        config_dict={'threshold': float(vdb_threshold)},
+        db_client=vectordb
+    )
 
 
 def setup_similarity_scanner(conf):
