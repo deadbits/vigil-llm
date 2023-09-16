@@ -11,3 +11,4 @@ chromadb==0.4.8
 litellm==0.1.634
 streamlit==1.26.0
 numpy==1.25.2
+loguru==0.7.2
