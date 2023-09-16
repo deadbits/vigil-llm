@@ -9,7 +9,7 @@ from flask import Flask, request, jsonify, abort
 
 from vigil.config import Config
 
-# from vigil.scanners.yara import YaraScanner
+from vigil.scanners.yara import YaraScanner
 from vigil.scanners.vectordb import VectorScanner
 from vigil.scanners.transformer import TransformerScanner
 from vigil.scanners.similarity import SimilarityScanner
@@ -51,9 +51,9 @@ def setup_yara_scanner(conf):
         logger.error(f'[{log_name}] No yara rules directory set in config')
         sys.exit(1)
 
-    #yara_scanner = YaraScanner(config_dict={'rules_dir': yara_dir})
-    #yara_scanner.load_rules()
-    #return yara_scanner
+    yara_scanner = YaraScanner(config_dict={'rules_dir': yara_dir})
+    yara_scanner.load_rules()
+    return yara_scanner
 
 
 def setup_vectordb_scanner(conf):
