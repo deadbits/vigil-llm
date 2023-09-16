@@ -8,7 +8,7 @@
 
 `Vigil` is a Python framework and REST API for assessing Large Language Model (LLM) prompts against a set of scanners to detect prompt injections, jailbreaks, and other potentially risky inputs. This repository also provides the detection signatures and datasets needed to get started with self-hosting.
 
-This application is currently in an **alpha** state. Work is ongoing to expand detection mechanisms and features.
+This application is currently in an **alpha** state and should be considered experimental. Work is ongoing to expand detection mechanisms and features.
 
 * **[Full documentation](https://vigil.deadbits.ai)**
 * **[Release Blog](https://vigil.deadbits.ai/overview/background)**
