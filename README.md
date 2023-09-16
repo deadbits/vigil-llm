@@ -22,7 +22,7 @@ This application is currently in an **alpha** state. Work is ongoing to expand d
     * [x] Vector database / text similarity
     * [x] Heuristics via [YARA](https://virustotal.github.io/yara)
     * [x] Transformer model
-    * [ ] Prompt-response similarity
+    * [x] Prompt-response similarity
     * [ ] Relevance (via LLM)
 * Supports [local embeddings](https://www.sbert.net/) and/or [OpenAI](https://platform.openai.com/)
     * [ ] Local LLM for relevance scanner
