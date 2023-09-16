@@ -43,6 +43,8 @@ class Manager:
             prompt_entropy=calculate_entropy(input_prompt),
         )
 
+        resp.uuid = str(resp.uuid)
+
         if not input_prompt:
             resp.errors.append('Input prompt value is empty')
             resp.status = 'failed'
