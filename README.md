@@ -20,6 +20,7 @@ This application is currently in an **alpha** state and should be considered exp
 * Scanners are modular and easily extensible
 * Available scan modules
     * [x] Vector database / text similarity
+      * [Auto-updating on detected prompts](https://vigil.deadbits.ai/overview/use-vigil/auto-updating-vector-database) (optional)
     * [x] Heuristics via [YARA](https://virustotal.github.io/yara)
     * [x] Transformer model
     * [x] Prompt-response similarity
@@ -27,7 +28,7 @@ This application is currently in an **alpha** state and should be considered exp
 * Supports [local embeddings](https://www.sbert.net/) and/or [OpenAI](https://platform.openai.com/)
 * Signatures and embeddings for common attacks
 * Custom detections via YARA signatures
-* Streamlit web UI playground
+* [Streamlit web UI playground](https://vigil.deadbits.ai/overview/use-vigil/web-server/web-ui-playground)
 
 ## Background 🏗️
 
@@ -121,6 +122,33 @@ For more information on modifying the `server.conf` file, please review the [Con
 
 > [!IMPORTANT]
 > Your VectorDB scanner embedding model setting must match the model used to generate the embeddings loaded into the database, or similarity search will not work. For example, if you used the Vigil datasets (above), the `model` field must be set to `openai` or ``all-MiniLM-L6-v2`.
+
+#### Auto-updating vector database
+If enabled, Vigil can add submitted prompts back to the vector database for future detection purposes. When `n` number of scanners match on a prompt, that prompt will be indexed in the database.
+
+Because each individual scanner is prone to false positives, it is recommended to set the threshold at `3` to require all input scanners (YARA, vector db, transformer) to match before auto-updating is invoked.
+
+This is disabled by default but can be configured in the **embedding** section of the `conf/server.conf` file.
+
+**Example configuration**
+
+```ini
+[embedding]
+auto_update = true
+update_threshold = 3
+```
+
+This configuration would require three different scanners to match against a submitted prompt before that prompt is indexed back in the database. 
+
+The following metadata is stored alongside the detected prompt:
+```json
+{
+     "uuid": scan uuid,
+     "source": "auto-update",
+     "timestamp": timestamp string,
+     "threshold": update_threshold
+}
+```
 
 ### Running the Server
 
