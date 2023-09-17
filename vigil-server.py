@@ -270,9 +270,6 @@ if __name__ == '__main__':
     vdb_auto_update = conf.get_bool('embedding', 'auto_update')
     vdb_update_thres = conf.get_val('embedding', 'update_threshold')
 
-    logger.info(vdb_auto_update)
-    logger.info(vdb_update_thres)
-
     common_args = {
         'scanners': inputs,
         'auto_update': vdb_auto_update if vdb_auto_update else False,
@@ -280,10 +277,10 @@ if __name__ == '__main__':
         'db_client': vectordb if vdb_auto_update else None
     }
 
-    in_mgr = Manager(**common_args)
-    out_mgr = Manager(**common_args)
+    in_mgr = Manager(name='input', **common_args)
+    out_mgr = Manager(name='output', **common_args)
 
     lru_cache = LRUCache(capacity=100)
 
-    app.run(debug=True)
+    app.run(use_reloader=True)
 

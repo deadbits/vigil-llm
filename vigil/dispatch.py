@@ -31,8 +31,9 @@ class Manager:
                  scanners: List[BaseScanner],
                  auto_update: bool = False,
                  update_threshold: int = 3,
-                 db_client=None):
-        self.name = 'dispatch:mgr'
+                 db_client=None,
+                 name: str = 'input'):
+        self.name = f'dispatch:{name}'
         self.dispatcher = Scanner(scanners)
         self.auto_update = auto_update
         self.update_threshold = update_threshold
@@ -40,9 +41,9 @@ class Manager:
 
         if self.auto_update:
             if self.db_client is None:
-                logger.warn('Auto-update disabled: db client is None')
+                logger.warn('{self.name} Auto-update disabled: db client is None')
             else:
-                logger.info(f'Auto-update vectordb enabled: threshold={self.update_threshold}')
+                logger.info(f'{self.name} Auto-update vectordb enabled: threshold={self.update_threshold}')
 
     def perform_scan(self, input_prompt: str, input_resp: str = None) -> dict:
         resp = ResponseModel(
@@ -58,10 +59,10 @@ class Manager:
         if not input_prompt:
             resp.errors.append('Input prompt value is empty')
             resp.status = 'failed'
-            logger.error('Input prompt value is empty')
+            logger.error('{self.name} Input prompt value is empty')
             return resp.dict()
 
-        logger.info(f'Dispatching scan request id={resp.uuid}')
+        logger.info(f'{self.name} Dispatching scan request id={resp.uuid}')
 
         scan_results = self.dispatcher.run(
             input_prompt=input_prompt,
@@ -78,18 +79,19 @@ class Manager:
             else:
                 # update for each matching scanner, not the number of results
                 # within an each individual scanner
-                total_matches += 1
                 resp.results[scanner_name] = {'matches': results}
+                if len(results) > 0:
+                    total_matches += 1
 
         for scanner_name, message in messages.items():
             if scanner_name in scan_results and len(scan_results[scanner_name]) > 0 \
                     and message not in resp.messages:
                 resp.messages.append(message)
 
-        logger.info(f'Total scanner matches: {total_matches}')
+        logger.info(f'{self.name} Total scanner matches: {total_matches}')
         if self.auto_update and (total_matches == self.update_threshold or
                                  total_matches > self.update_threshold):
-            logger.info('(auto-update) Adding detected prompt to vector db')
+            logger.info('{self.name} (auto-update) Adding detected prompt to db id={resp.uuid}')
             doc_id = self.db_client.add_texts(
                 [input_prompt],
                 [
@@ -101,9 +103,9 @@ class Manager:
                     }
                 ]
             )
-            logger.info(f'Auto update successful: {doc_id}')
+            logger.success(f'{self.name} (auto-update) Successful doc_id={doc_id} id={resp.uuid}')
 
-        logger.info(f'Returning response object id={resp.uuid}')
+        logger.info(f'{self.name} Returning response object id={resp.uuid}')
 
         return resp.dict()
 

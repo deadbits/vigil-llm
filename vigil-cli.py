@@ -12,7 +12,7 @@ from loguru import logger
 
 from vigil.config import Config
 
-#from vigil.scanners.yara import YaraScanner
+from vigil.scanners.yara import YaraScanner
 from vigil.scanners.transformer import TransformerScanner
 from vigil.scanners.vectordb import VectorScanner
 from vigil.scanners.similarity import SimilarityScanner
@@ -197,10 +197,10 @@ if __name__ == '__main__':
     }
 
     if args.response:
-        out_mgr = Manager(**common_args)
+        out_mgr = Manager(name='input', **common_args)
         result = out_mgr.perform_scan(input_prompt=args.response)
     else:
-        mgr = Manager(**common_args)
+        mgr = Manager(name='output', **common_args)
         mgr = Manager(scanners=inputs)
         result = mgr.perform_scan(input_prompt=args.prompt)
 
