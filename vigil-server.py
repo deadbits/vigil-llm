@@ -21,9 +21,7 @@ from vigil.dispatch import Manager
 
 logger.add('logs/server.log', format="{time} {level} {message}", level="INFO")
 
-
 app = Flask(__name__)
-
 
 
 class LRUCache:
@@ -134,11 +132,11 @@ def check_field(data, field_name: str, field_type: type) -> str:
     field_data = data.get(field_name, "")
 
     if not field_data:
-        logger.error(f'({request.path}) Missing "{field_name}" field')
+        logger.error(f'Missing "{field_name}" field')
         abort(400, f'Missing "{field_name}" field')
 
     if not isinstance(field_data, field_type):
-        logger.error(f'({request.path}) Invalid data type; "{field_name}" value must be a {field_type.__name__}')
+        logger.error(f'nvalid data type; "{field_name}" value must be a {field_type.__name__}')
         abort(400, f'Invalid data type; "{field_name}" value must be a {field_type.__name__}')
 
     return field_data
@@ -147,7 +145,7 @@ def check_field(data, field_name: str, field_type: type) -> str:
 @app.route('/settings', methods=['GET'])
 def show_settings():
     """ Return the current configuration settings """
-    logger.info(f'({request.path}) Returning config dictionary')
+    logger.info('Returning config dictionary')
     config_dict = {s: dict(conf.config.items(s)) for s in conf.config.sections()}
 
     if 'embedding' in config_dict:
@@ -155,6 +153,22 @@ def show_settings():
 
     return jsonify(config_dict)
 
+@app.route('/add/texts', methods=['POST'])
+def add_texts():
+    """ Add text to the vector database (embedded at index) """
+    texts = check_field(request.json, 'texts', list)
+    metadatas = check_field(request.json, 'metadatas', list)
+
+    logger.info('Adding text to VectorDB')
+
+    res, ids = vectordb.add_texts(texts, metadatas)
+    if res is False:
+        logger.error('Error adding text to VectorDB')
+        abort(500, 'Error adding text to VectorDB')
+
+    logger.info('Returning response')
+
+    return jsonify({'success': True, 'ids': ids})
 
 @app.route('/analyze/response', methods=['POST'])
 def analyze_response():
