@@ -3,8 +3,12 @@ import chromadb
 
 from loguru import logger
 
+from typing import List
+
 from chromadb.config import Settings
 from chromadb.utils import embedding_functions
+
+from vigil.common import uuid4_str
 
 
 class VectorDB:
@@ -38,7 +42,7 @@ class VectorDB:
         self.collection = self.get_or_create_collection(self.collection_name)
         logger.success('Loaded database')
 
-    def get_or_create_collection(self, name):
+    def get_or_create_collection(self, name: str):
         logger.info(f'Using collection: {name}')
         self.collection = self.client.get_or_create_collection(
             name=name,
@@ -47,26 +51,42 @@ class VectorDB:
         )
         return self.collection
 
-    def add_texts(self, texts: list, ids: list):
+    def add_texts(self, texts: List[str], metadatas: List[dict]):
+        success = False
+
         logger.info(f'Adding {len(texts)} texts')
+        ids = [uuid4_str() for _ in range(len(texts))]
+
         try:
             self.collection.add(
                 documents=texts,
+                metadatas=metadatas,
                 ids=ids
             )
+            success = True
         except Exception as err:
             logger.error(f'Failed to add texts to collection: {err}')
 
-    def add_embeddings(self, texts: list, embeddings: list, ids: list):
+        return (success, ids)
+
+    def add_embeddings(self, texts: List[str], embeddings: List[List], metadatas: List[dict]):
+        success = False
+
         logger.info(f'Adding {len(texts)} embeddings')
+        ids = [uuid4_str() for _ in range(len(texts))]
+
         try:
             self.collection.add(
                 documents=texts,
                 embeddings=embeddings,
+                metadatas=metadatas,
                 ids=ids
             )
+            success = True
         except Exception as err:
             logger.error(f'Failed to add texts to collection: {err}')
+
+        return (success, ids)
 
     def query(self, text: str):
         logger.info(f'Querying database for: {text}')
