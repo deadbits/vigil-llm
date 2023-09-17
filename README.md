@@ -100,9 +100,10 @@ git clone <hf repo>
 Once downloaded, use the `parquet2vdb` utility to load the embeddings into Vigil's vector database. 
 
 Before you run the command below, make sure you've updated the `conf/server.conf` configuration file. You'll want to configure (at a minimum):
-    * `embedding.model` - same as embedding model from dataset you are loading
-        * Example: `vigil-jailbreak-all-MiniLM-L6-v2` dataset requires `model = all-MiniLM-L6-v2`
-        * Example: `vigil-jailbreak-ada-002` requires ``model = openai` and setting `embedding.openai_api_key`
+    
+* `embedding.model` - same as embedding model from dataset you are loading
+  * Example: `vigil-jailbreak-all-MiniLM-L6-v2` dataset requires `model = all-MiniLM-L6-v2`
+  * Example: `vigil-jailbreak-ada-002` requires ``model = openai` and setting `embedding.openai_api_key`
 
 ```cd vigil/utils
 python -m parquet2vdb --config server.conf -d /path/to/<hf repo>
@@ -203,6 +204,26 @@ curl -X POST -H "Content-Type: application/json" \
     -d '{"prompt":"Your prompt here", "response": "foo"}' http://localhost:5000/analyze
 ```
 
+**POST /add/texts**
+
+Add new texts to the vector database and return doc IDs
+Text will be embedded at index time.
+
+**arguments:**
+* **texts**: list of texts
+* **metadatas**: list of metadatas
+
+```bash
+curl -X POST "http://127.0.0.1:5000/add/texts" \
+     -H "Content-Type: application/json" \
+     --data '{
+         "texts": ["Hello, world!", "Blah blah."],
+         "metadatas": [
+             {"author": "John", "date": "2023-09-17"},
+             {"author": "Jane", "date": "2023-09-10", "topic": "cybersecurity"}
+         ]
+     }'
+```
 
 **GET /settings**
 

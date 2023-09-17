@@ -136,7 +136,7 @@ def check_field(data, field_name: str, field_type: type) -> str:
         abort(400, f'Missing "{field_name}" field')
 
     if not isinstance(field_data, field_type):
-        logger.error(f'nvalid data type; "{field_name}" value must be a {field_type.__name__}')
+        logger.error(f'Invalid data type; "{field_name}" value must be a {field_type.__name__}')
         abort(400, f'Invalid data type; "{field_name}" value must be a {field_type.__name__}')
 
     return field_data
@@ -145,7 +145,7 @@ def check_field(data, field_name: str, field_type: type) -> str:
 @app.route('/settings', methods=['GET'])
 def show_settings():
     """ Return the current configuration settings """
-    logger.info('Returning config dictionary')
+    logger.info(f'({request.path}) Returning config dictionary')
     config_dict = {s: dict(conf.config.items(s)) for s in conf.config.sections()}
 
     if 'embedding' in config_dict:
@@ -159,28 +159,28 @@ def add_texts():
     texts = check_field(request.json, 'texts', list)
     metadatas = check_field(request.json, 'metadatas', list)
 
-    logger.info('Adding text to VectorDB')
+    logger.info(f'({request.path}) Adding text to VectorDB')
 
     res, ids = vectordb.add_texts(texts, metadatas)
     if res is False:
-        logger.error('Error adding text to VectorDB')
+        logger.error(f'({request.path}) Error adding text to VectorDB')
         abort(500, 'Error adding text to VectorDB')
 
-    logger.info('Returning response')
+    logger.info(f'({request.path}) Returning response')
 
     return jsonify({'success': True, 'ids': ids})
 
 @app.route('/analyze/response', methods=['POST'])
 def analyze_response():
     """ Analyze a prompt and its response """
-    logger.info('Received request')
+    logger.info(f'({request.path}) Received scan request')
 
     input_prompt = check_field(request.json, 'prompt', str)
     out_data = check_field(request.json, 'response', str)
 
     result = out_mgr.perform_scan(input_prompt, out_data)
 
-    logger.info('Returning response')
+    logger.info(f'({request.path}) Returning response')
 
     return jsonify(result)
 
@@ -188,19 +188,19 @@ def analyze_response():
 @app.route('/analyze/prompt', methods=['POST'])
 def analyze_prompt():
     """ Analyze a prompt against a set of scanners """
-    logger.info('Received request')
+    logger.info(f'({request.path}) Received scan request')
 
     input_prompt = check_field(request.json, 'prompt', str)
     cached_response = lru_cache.get(input_prompt)
 
     if cached_response:
-        logger.info('Found response in cache!')
+        logger.info(f'({request.path}) Found response in cache!')
         cached_response['cached'] = True
         return jsonify(cached_response)
 
     result = in_mgr.perform_scan(input_prompt)
 
-    logger.info('Returning response')
+    logger.info(f'({request.path}) Returning response')
     lru_cache.set(input_prompt, result)
 
     return jsonify(result)
