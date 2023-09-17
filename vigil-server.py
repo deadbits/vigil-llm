@@ -21,9 +21,7 @@ from vigil.dispatch import Manager
 
 logger.add('logs/server.log', format="{time} {level} {message}", level="INFO")
 
-
 app = Flask(__name__)
-
 
 
 class LRUCache:
@@ -134,11 +132,11 @@ def check_field(data, field_name: str, field_type: type) -> str:
     field_data = data.get(field_name, "")
 
     if not field_data:
-        logger.error(f'({request.path}) Missing "{field_name}" field')
+        logger.error(f'Missing "{field_name}" field')
         abort(400, f'Missing "{field_name}" field')
 
     if not isinstance(field_data, field_type):
-        logger.error(f'({request.path}) Invalid data type; "{field_name}" value must be a {field_type.__name__}')
+        logger.error(f'Invalid data type; "{field_name}" value must be a {field_type.__name__}')
         abort(400, f'Invalid data type; "{field_name}" value must be a {field_type.__name__}')
 
     return field_data
@@ -155,18 +153,34 @@ def show_settings():
 
     return jsonify(config_dict)
 
+@app.route('/add/texts', methods=['POST'])
+def add_texts():
+    """ Add text to the vector database (embedded at index) """
+    texts = check_field(request.json, 'texts', list)
+    metadatas = check_field(request.json, 'metadatas', list)
+
+    logger.info(f'({request.path}) Adding text to VectorDB')
+
+    res, ids = vectordb.add_texts(texts, metadatas)
+    if res is False:
+        logger.error(f'({request.path}) Error adding text to VectorDB')
+        abort(500, 'Error adding text to VectorDB')
+
+    logger.info(f'({request.path}) Returning response')
+
+    return jsonify({'success': True, 'ids': ids})
 
 @app.route('/analyze/response', methods=['POST'])
 def analyze_response():
     """ Analyze a prompt and its response """
-    logger.info('Received request')
+    logger.info(f'({request.path}) Received scan request')
 
     input_prompt = check_field(request.json, 'prompt', str)
     out_data = check_field(request.json, 'response', str)
 
     result = out_mgr.perform_scan(input_prompt, out_data)
 
-    logger.info('Returning response')
+    logger.info(f'({request.path}) Returning response')
 
     return jsonify(result)
 
@@ -174,19 +188,19 @@ def analyze_response():
 @app.route('/analyze/prompt', methods=['POST'])
 def analyze_prompt():
     """ Analyze a prompt against a set of scanners """
-    logger.info('Received request')
+    logger.info(f'({request.path}) Received scan request')
 
     input_prompt = check_field(request.json, 'prompt', str)
     cached_response = lru_cache.get(input_prompt)
 
     if cached_response:
-        logger.info('Found response in cache!')
+        logger.info(f'({request.path}) Found response in cache!')
         cached_response['cached'] = True
         return jsonify(cached_response)
 
     result = in_mgr.perform_scan(input_prompt)
 
-    logger.info('Returning response')
+    logger.info(f'({request.path}) Returning response')
     lru_cache.set(input_prompt, result)
 
     return jsonify(result)
