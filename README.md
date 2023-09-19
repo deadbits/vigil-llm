@@ -50,7 +50,24 @@ For more information on prompt injection, I recommend the following resources an
 
 ## Use Vigil 🛠️
 
-Follow the steps below to setup your environment and database then run the API server or command line utility to start analyzing prompts!
+Follow the steps below to install Vigil manually or build the Docker container to quickly start using the app with OpenAI embeddings.
+
+The Docker environment is currently limited to using OpenAI only, and the vector database is not persisted between runs. This [will be expanded](https://github.com/deadbits/vigil-llm/issues/35) in the near future. 
+
+**Docker quickstart**
+```bash
+git clone https://github.com/deadbits/vigil-llm
+cd vigil-llm
+docker build -t vigil .
+
+# set your openai_api_key in docker.conf
+vim conf/docker.conf
+
+docker run -v `pwd`/conf/docker.conf:/app/conf/server.conf -p5000:5000 vigil
+```
+OpenAI embedding datasets are downloaded and loaded into vectordb at container run time.
+
+The API server will be available on 0.0.0.0:5000.
 
 ### Clone Repository
 Clone the repository to your local machine:
