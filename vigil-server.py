@@ -282,5 +282,5 @@ if __name__ == '__main__':
 
     lru_cache = LRUCache(capacity=100)
 
-    app.run(use_reloader=True)
+    app.run(host='0.0.0.0', use_reloader=True)
 
