@@ -189,20 +189,26 @@ if __name__ == '__main__':
     vdb_auto_update = conf.get_bool('embedding', 'auto_update')
     vdb_update_thres = conf.get_val('embedding', 'update_threshold')
 
-    common_args = {
+    input_args = {
         'scanners': inputs,
         'auto_update': vdb_auto_update if vdb_auto_update else False,
         'update_threshold': int(vdb_update_thres) if vdb_update_thres else 3,
         'db_client': vectordb if vdb_auto_update else None
     }
 
+    output_args = {
+        'scanners': outputs,
+        'auto_update': vdb_auto_update if vdb_auto_update else False,
+        'update_threshold': int(vdb_update_thres) if vdb_update_thres else 3,
+        'db_client': vectordb if vdb_auto_update else None
+    }
+
     if args.response:
-        out_mgr = Manager(name='input', **common_args)
+        out_mgr = Manager(name='output', **output_args)
         result = out_mgr.perform_scan(input_prompt=args.response)
     else:
-        mgr = Manager(name='output', **common_args)
-        mgr = Manager(scanners=inputs)
-        result = mgr.perform_scan(input_prompt=args.prompt)
+        in_mgr = Manager(name='input', **input_args)
+        result = in_mgr.perform_scan(input_prompt=args.prompt)
 
     print(
         highlight(
