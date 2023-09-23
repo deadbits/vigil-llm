@@ -166,15 +166,15 @@ def add_canary():
     logger.info(f'({request.path}) Adding canary token to prompt')
 
     prompt = check_field(request.json, 'prompt', str)
+    always = check_field(request.json, 'always', bool, required=False)
     length = check_field(request.json, 'length', int, required=False)
-    prefix = check_field(request.json, 'prefix', str, required=False)
     header = check_field(request.json, 'header', str, required=False)
 
     updated_prompt = CanaryTokens.add(
         prompt=prompt,
+        always=always if always else False,
         length=length if length else 16, 
         header=header if header else '<-@!-- {canary} --@!->',
-        prefix=prefix if prefix else ''
     )
     logger.info(f'({request.path}) Returning response')
 
