@@ -9,12 +9,14 @@ from collections import OrderedDict
 from flask import Flask, request, jsonify, abort
 
 from vigil.config import Config
+from vigil.common import timestamp_str
 
 from vigil.scanners.yara import YaraScanner
 from vigil.scanners.vectordb import VectorScanner
 from vigil.scanners.transformer import TransformerScanner
 from vigil.scanners.similarity import SimilarityScanner
 
+from vigil.canary import CanaryTokens
 from vigil.vectordb import VectorDB
 from vigil.dispatch import Manager
 
@@ -22,6 +24,8 @@ from vigil.dispatch import Manager
 logger.add('logs/server.log', format="{time} {level} {message}", level="INFO")
 
 app = Flask(__name__)
+
+CanaryTokens = CanaryTokens()
 
 
 class LRUCache:
@@ -128,12 +132,14 @@ def setup_transformer_scanner(conf):
     })
 
 
-def check_field(data, field_name: str, field_type: type) -> str:
-    field_data = data.get(field_name, "")
+def check_field(data, field_name: str, field_type: type, required: bool = True) -> str:
+    field_data = data.get(field_name, None)
 
-    if not field_data:
-        logger.error(f'Missing "{field_name}" field')
-        abort(400, f'Missing "{field_name}" field')
+    if field_data is None:
+        if required:
+            logger.error(f'Missing "{field_name}" field')
+            abort(400, f'Missing "{field_name}" field')
+        return None
 
     if not isinstance(field_data, field_type):
         logger.error(f'Invalid data type; "{field_name}" value must be a {field_type.__name__}')
@@ -153,6 +159,59 @@ def show_settings():
 
     return jsonify(config_dict)
 
+
+@app.route('/canary/add', methods=['POST'])
+def add_canary():
+    """ Add a canary token to the prompt """
+    logger.info(f'({request.path}) Adding canary token to prompt')
+
+    prompt = check_field(request.json, 'prompt', str)
+    always = check_field(request.json, 'always', bool, required=False)
+    length = check_field(request.json, 'length', int, required=False)
+    header = check_field(request.json, 'header', str, required=False)
+
+    updated_prompt = CanaryTokens.add(
+        prompt=prompt,
+        always=always if always else False,
+        length=length if length else 16, 
+        header=header if header else '<-@!-- {canary} --@!->',
+    )
+    logger.info(f'({request.path}) Returning response')
+
+    return jsonify(
+        {
+            'success': True,
+            'timestamp': timestamp_str(),
+            'result': updated_prompt
+        }
+    )
+
+
+@app.route('/canary/check', methods=['POST'])
+def check_canary():
+    """ Check if the prompt contains a canary token """
+    logger.info(f'({request.path}) Checking prompt for canary token')
+
+    prompt = check_field(request.json, 'prompt', str)
+
+    result = CanaryTokens.check(prompt=prompt)
+    if result:
+        message = 'Canary token found in prompt'
+    else:
+        message = 'No canary token found in prompt'
+
+    logger.info(f'({request.path}) Returning response')
+
+    return jsonify(
+        {
+            'success': True,
+            'timestamp': timestamp_str(),
+            'result': result,
+            'message': message
+        }
+    )
+
+
 @app.route('/add/texts', methods=['POST'])
 def add_texts():
     """ Add text to the vector database (embedded at index) """
@@ -168,7 +227,13 @@ def add_texts():
 
     logger.info(f'({request.path}) Returning response')
 
-    return jsonify({'success': True, 'ids': ids})
+    return jsonify(
+        {
+            'success': True,
+            'timestamp': timestamp_str(),
+            'ids': ids
+        }
+    )
 
 @app.route('/analyze/response', methods=['POST'])
 def analyze_response():
