@@ -56,3 +56,11 @@ class SimilarityMatch(BaseModel):
     score: float = 0.0
     threshold: float = 0.0
     message: str = ''
+
+
+class SentimentMatch(BaseModel):
+    negative: float = 0.0
+    neutral: float = 0.0
+    positive: float = 0.0
+    compound: float = 0.0
+    threshold: float = 0.0
