@@ -41,7 +41,7 @@ class Manager:
 
         if self.auto_update:
             if self.db_client is None:
-                logger.warn('{self.name} Auto-update disabled: db client is None')
+                logger.warn(f'{self.name} Auto-update disabled: db client is None')
             else:
                 logger.info(f'{self.name} Auto-update vectordb enabled: threshold={self.update_threshold}')
 
@@ -59,7 +59,7 @@ class Manager:
         if not input_prompt:
             resp.errors.append('Input prompt value is empty')
             resp.status = 'failed'
-            logger.error('{self.name} Input prompt value is empty')
+            logger.error(f'{self.name} Input prompt value is empty')
             return resp.dict()
 
         logger.info(f'{self.name} Dispatching scan request id={resp.uuid}')
