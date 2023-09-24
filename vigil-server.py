@@ -15,6 +15,7 @@ from vigil.scanners.yara import YaraScanner
 from vigil.scanners.vectordb import VectorScanner
 from vigil.scanners.transformer import TransformerScanner
 from vigil.scanners.similarity import SimilarityScanner
+from vigil.scanners.sentiment import SentimentScanner
 
 from vigil.canary import CanaryTokens
 from vigil.vectordb import VectorDB
@@ -57,6 +58,14 @@ def setup_yara_scanner(conf):
     yara_scanner = YaraScanner(config_dict={'rules_dir': yara_dir})
     yara_scanner.load_rules()
     return yara_scanner
+
+
+def setup_sentiment_scanner(conf):
+    return SentimentScanner(
+        config_dict={
+            'threshold': float(conf.get_val('scanner:sentiment', 'threshold'))
+        }
+    )
 
 
 def setup_vectordb_scanner(conf):
@@ -313,7 +322,8 @@ if __name__ == '__main__':
         'similarity': setup_similarity_scanner,
         'transformer': setup_transformer_scanner,
         'yara': setup_yara_scanner,
-        'vectordb': setup_vectordb_scanner
+        'vectordb': setup_vectordb_scanner,
+        'sentiment': setup_sentiment_scanner
     }
 
     for name in out_scanners:
