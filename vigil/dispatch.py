@@ -91,7 +91,7 @@ class Manager:
         logger.info(f'{self.name} Total scanner matches: {total_matches}')
         if self.auto_update and (total_matches == self.update_threshold or
                                  total_matches > self.update_threshold):
-            logger.info('{self.name} (auto-update) Adding detected prompt to db id={resp.uuid}')
+            logger.info(f'{self.name} (auto-update) Adding detected prompt to db id={resp.uuid}')
             doc_id = self.db_client.add_texts(
                 [input_prompt],
                 [
