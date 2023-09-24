@@ -18,7 +18,7 @@ class SentimentScanner(BaseScanner):
         self.name = 'scanner:sentiment'
         self.threshold = float(config_dict['threshold'])
         self.analyzer = SentimentIntensityAnalyzer()
-        logger.info('Loaded scanner.')
+        logger.success('Loaded scanner.')
 
     def analyze(self, scan_obj: ScanModel, scan_id: uuid.uuid4) -> ScanModel:
         logger.info(f'Performing scan; id="{scan_id}"')
