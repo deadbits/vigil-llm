@@ -38,7 +38,7 @@ class SimilarityScanner(BaseScanner):
                 threshold=self.threshold,
                 message='Response is not similar to prompt.',
             )
-            logger.info('Response is not similar to prompt.')
+            logger.warning('Response is not similar to prompt.')
             scan_obj.results.append(m)
 
         if len(scan_obj.results) == 0:

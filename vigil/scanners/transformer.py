@@ -44,10 +44,10 @@ class TransformerScanner(BaseScanner):
             for rec in hits:
                 if rec['label'] == 'INJECTION':
                     if rec['score'] > self.threshold:
-                        logger.info(f'Detected prompt injection; score={rec["score"]} threshold={self.threshold} id={scan_id}')
+                        logger.warning(f'Detected prompt injection; score={rec["score"]} threshold={self.threshold} id={scan_id}')
                     else:
-                        logger.info(
-                            f'etected prompt injection below threshold (may warrant manual review); \
+                        logger.warning(
+                            f'Detected prompt injection below threshold (may warrant manual review); \
                             score={rec["score"]} threshold={self.threshold} id={scan_id}'
                         )
 

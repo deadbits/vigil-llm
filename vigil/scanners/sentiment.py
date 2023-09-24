@@ -32,7 +32,7 @@ class SentimentScanner(BaseScanner):
             logger.info(f'Sentiment scores: {scores} id="{scan_id}"')
 
             if scores['neg'] > self.threshold:
-                logger.info(f'Negative sentiment score above threshold; threshold={self.threshold} id="{scan_id}"')
+                logger.warning(f'Negative sentiment score above threshold; threshold={self.threshold} id="{scan_id}"')
 
             scan_obj.results.append(
                 SentimentMatch(

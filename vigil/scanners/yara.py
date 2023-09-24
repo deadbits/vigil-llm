@@ -67,7 +67,7 @@ class YaraScanner(BaseScanner):
 
         for match in matches:
             m = YaraMatch(rule_name=match.rule, tags=match.tags, category=match.meta.get('category', None))
-            logger.info(f'Matched rule rule="{m.rule_name} tags="{m.tags}" category="{m.category}"')
+            logger.warning(f'Matched rule rule="{m.rule_name} tags="{m.tags}" category="{m.category}"')
             scan_obj.results.append(m)
 
         if len(scan_obj.results) == 0:

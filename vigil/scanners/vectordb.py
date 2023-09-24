@@ -29,7 +29,7 @@ class VectorScanner(BaseScanner):
             if distance < self.threshold:
                 # with chromadb a lower distance means the vectors are more similar
                 m = VectorMatch(text=match[0], metadata=match[1], distance=match[2])
-                logger.info(f'Matched vector text="{m.text}" threshold="{self.threshold}" distance="{m.distance}" id="{scan_id}"')
+                logger.warning(f'Matched vector text="{m.text}" threshold="{self.threshold}" distance="{m.distance}" id="{scan_id}"')
                 scan_obj.results.append(m)
 
         if len(scan_obj.results) == 0:
