@@ -23,6 +23,7 @@ This application is currently in an **alpha** state and should be considered exp
     * [x] Transformer model
     * [x] Prompt-response similarity
     * [x] Canary Tokens
+    * [x] Sentiment analysis 
     * [ ] Relevance (via [LiteLLM](https://docs.litellm.ai/docs/))
 * Supports [local embeddings](https://www.sbert.net/) and/or [OpenAI](https://platform.openai.com/)
 * Signatures and embeddings for common attacks
