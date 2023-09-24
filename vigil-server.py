@@ -60,7 +60,7 @@ def setup_yara_scanner(conf):
     return yara_scanner
 
 
-def setup_sentinel_scanner(conf):
+def setup_sentiment_scanner(conf):
     return SentimentScanner(
         config_dict={
             'threshold': float(conf.get_val('scanner:sentiment', 'threshold'))
