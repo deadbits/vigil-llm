@@ -323,7 +323,7 @@ if __name__ == '__main__':
         'transformer': setup_transformer_scanner,
         'yara': setup_yara_scanner,
         'vectordb': setup_vectordb_scanner,
-        'sentiment': setup_sentinel_scanner
+        'sentiment': setup_sentiment_scanner
     }
 
     for name in out_scanners:
