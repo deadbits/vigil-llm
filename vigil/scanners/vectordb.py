@@ -23,14 +23,17 @@ class VectorScanner(BaseScanner):
             logger.error(f'Failed to perform vector scan; id="{scan_id}" error="{err}"')
             return scan_obj
 
+        existing_texts = []
+
         for match in zip(matches["documents"][0], matches["metadatas"][0], matches["distances"][0]):
             distance = match[2]
 
-            if distance < self.threshold:
+            if distance < self.threshold and match[0] not in existing_texts:
                 # with chromadb a lower distance means the vectors are more similar
                 m = VectorMatch(text=match[0], metadata=match[1], distance=match[2])
                 logger.warning(f'Matched vector text="{m.text}" threshold="{self.threshold}" distance="{m.distance}" id="{scan_id}"')
                 scan_obj.results.append(m)
+                existing_texts.append(m.text)
 
         if len(scan_obj.results) == 0:
             logger.info(f'No matches found; id="{scan_id}"')
