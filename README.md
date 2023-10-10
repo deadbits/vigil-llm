@@ -27,6 +27,7 @@ This application is currently in an **alpha** state and should be considered exp
     * [ ] Relevance (via [LiteLLM](https://docs.litellm.ai/docs/))
 * Supports [local embeddings](https://www.sbert.net/) and/or [OpenAI](https://platform.openai.com/)
 * Signatures and embeddings for common attacks
+    * [Recently added support](https://huggingface.co/datasets/deadbits/vigil-gandalf-instruction-bypass-ada-002) for the [Lakera Gandalf dataset](https://huggingface.co/datasets/Lakera/gandalf_ignore_instructions)
 * Custom detections via YARA signatures
 * [Streamlit web UI playground](https://vigil.deadbits.ai/overview/use-vigil/web-server/web-ui-playground)
 
