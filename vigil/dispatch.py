@@ -20,7 +20,7 @@ messages = {
 }
 
 
-def calculate_entropy(text):
+def calculate_entropy(text) -> float:
     prob = [text.count(c) / len(text) for c in set(text)]
     entropy = -sum(p * math.log2(p) for p in prob)
     return entropy
