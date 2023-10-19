@@ -1,6 +1,7 @@
 # https://github.com/deadbits/vigil-llm
 import os
 import sys
+import time
 import argparse
 
 from loguru import logger
@@ -252,7 +253,9 @@ def analyze_response():
     input_prompt = check_field(request.json, 'prompt', str)
     out_data = check_field(request.json, 'response', str)
 
+    start_time = time.time()
     result = out_mgr.perform_scan(input_prompt, out_data)
+    result['elapsed'] = round((time.time() - start_time), 6)
 
     logger.info(f'({request.path}) Returning response')
 
@@ -272,7 +275,9 @@ def analyze_prompt():
         cached_response['cached'] = True
         return jsonify(cached_response)
 
+    start_time = time.time()
     result = in_mgr.perform_scan(input_prompt)
+    result['elapsed'] = round((time.time() - start_time), 6)
 
     logger.info(f'({request.path}) Returning response')
     lru_cache.set(input_prompt, result)
