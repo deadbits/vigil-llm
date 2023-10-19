@@ -3,7 +3,6 @@ rule ContainsAPIToken
     meta:
         category = "Sensitive Information"
         description = "Detects patterns for common API tokens and other secrets"
-        author = "Adam M. Swanda"
         references = "https://github.com/l4yton/RegHex"
 
     strings:
