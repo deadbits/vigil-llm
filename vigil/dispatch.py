@@ -77,10 +77,8 @@ class Manager:
                 resp.status = 'partial_success'
                 resp.errors.append(f'Error in {scanner_name}: {results["error"]}')
             else:
-                # update for each matching scanner, not the number of results
-                # within an each individual scanner
                 resp.results[scanner_name] = {'matches': results}
-                if len(results) > 0:
+                if len(results) > 0 and scanner_name != 'scanner:sentiment':
                     total_matches += 1
 
         for scanner_name, message in messages.items():
@@ -89,8 +87,7 @@ class Manager:
                 resp.messages.append(message)
 
         logger.info(f'{self.name} Total scanner matches: {total_matches}')
-        if self.auto_update and (total_matches == self.update_threshold or
-                                 total_matches > self.update_threshold):
+        if self.auto_update and (total_matches >= self.update_threshold):
             logger.info(f'{self.name} (auto-update) Adding detected prompt to db id={resp.uuid}')
             doc_id = self.db_client.add_texts(
                 [input_prompt],
