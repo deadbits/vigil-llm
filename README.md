@@ -25,6 +25,7 @@ This application is currently in an **alpha** state and should be considered exp
     * [x] Canary Tokens
     * [x] Sentiment analysis 
     * [ ] Relevance (via [LiteLLM](https://docs.litellm.ai/docs/))
+    * [ ] Paraphrasing
 * Supports [local embeddings](https://www.sbert.net/) and/or [OpenAI](https://platform.openai.com/)
 * Signatures and embeddings for common attacks
     * [Recently added support](https://huggingface.co/datasets/deadbits/vigil-gandalf-instruction-bypass-ada-002) for the [Lakera Gandalf dataset](https://huggingface.co/datasets/Lakera/gandalf_ignore_instructions)
