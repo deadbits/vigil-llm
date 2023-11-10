@@ -1,5 +1,5 @@
 openai==0.28.0
-transformers==4.29.0
+transformers==4.30.0
 pydantic==1.10.7
 Flask==2.2.3
 yara-python==4.3.1
