@@ -1,4 +1,4 @@
-rule InstructionBypass_vigil: PromptInjection
+rule InstructionBypass: Injection
 {
     meta:
         category = "Instruction Bypass"

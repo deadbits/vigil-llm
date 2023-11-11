@@ -1,7 +1,7 @@
-rule ContainsGuidance: Guidance
+rule ContainsGuidance
 {
     meta:
-        category = "Informational"
+        category = "Injection"
         description = "Detects prompts that include Guidance language terms (e.g., {{#system~}})"
         reference = "https://github.com/guidance-ai/guidance"
 

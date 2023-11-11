@@ -1,7 +1,7 @@
 rule ContainsIPv4
 {
     meta:
-        category = "Sensitive Information"
+        category = "Sensitive Data"
         description = "Detect IPv4 addresses within prompts; may be indicative of injection for SSRF, etc."
         author = "Adam M. Swanda"
 
