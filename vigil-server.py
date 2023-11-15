@@ -126,7 +126,7 @@ def add_texts():
 
     logger.info(f'({request.path}) Adding text to VectorDB')
 
-    res, ids = vigil._vectordb.add_texts(texts, metadatas)
+    res, ids = vigil.vectordb.add_texts(texts, metadatas)
     if res is False:
         logger.error(f'({request.path}) Error adding text to VectorDB')
         abort(500, 'Error adding text to VectorDB')
