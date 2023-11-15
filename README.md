@@ -52,7 +52,7 @@ For more information on prompt injection, I recommend the following resources an
 * [OWASP Top 10 for LLM Applications v1.0.1 | OWASP.org](https://owasp.org/www-project-top-10-for-large-language-model-applications/assets/PDF/OWASP-Top-10-for-LLMs-2023-v1_0_1.pdf)
 * [Securing LLM Systems Against Prompt Injection](https://developer.nvidia.com/blog/securing-llm-systems-against-prompt-injection/)
 
-## Use Vigil 🛠️
+## Install Vigil 🛠️
 
 Follow the steps below to install Vigil manually or build the Docker container to quickly start using the app with OpenAI embeddings.
 
@@ -86,6 +86,7 @@ Follow the instructions on the [YARA Getting Started documentation](https://yara
 ### Setup Python Virtual Environment
 ```
 python3 -m venv venv
+source venv/bin/activate
 ```
 
 ### Install Python Requirements
@@ -169,6 +170,10 @@ The following metadata is stored alongside the detected prompt:
 }
 ```
 
+## Use Vigil 🛠️
+
+Vigil can run as a REST API server or be imported directly into your Python project.
+
 ### Running the Server
 
 To start the Vigil API server, run the following command:
@@ -177,16 +182,40 @@ To start the Vigil API server, run the following command:
 python vigil-server.py --conf conf/server.conf
 ```
 
-### Using the CLI Utility
+* [API Documentation](https://github.com/deadbits/vigil-llm#api-endpoints-)
 
-Alternatively, you can use the CLI utility to scan prompts. This utility only accepts a single prompt to scan at a time and is meant  for testing new configuration file settings or other quick tests as opposed to any production use.
+### Using in Python
 
-```bash
-python vigil-cli.py --conf conf/server.conf --prompt "Your prompt here"
-```
+Vigil can be easily initialized from a config file and allows for flexible detection pipelines.
 
-```bash
-python vigil-cli.py --conf conf/server.conf --prompt "foo" --response "foo"
+```python
+from vigil.vigil import Vigil
+
+vigil = Vigil.from_config('conf/openai.conf')
+
+result = vigil.input_scanner.perform_scan(
+    input_prompt="prompt goes here"
+)
+
+if 'Potential prompt injection detected' in result['messages']:
+    take_some_action()
+
+vigil.output_scanner.perform_scan(
+    input_text="prompt goes here",
+    input_resp="response goes here"
+)
+
+# use canary tokens
+updated_prompt = vigil.canary_tokens.add(
+    prompt=prompt,
+    always=always if always else False,
+    length=length if length else 16, 
+    header=header if header else '<-@!-- {canary} --@!->',
+)
+result = vigil.canary_tokens.check(prompt=llm_response)
+
+# update vector db
+result, ids = vigil.vector_db.add(prompt=prompt)
 ```
 
 ## Detection Methods 🔍

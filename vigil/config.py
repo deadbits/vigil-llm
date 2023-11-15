@@ -5,7 +5,7 @@ from loguru import logger
 
 import configparser
 
-from typing import Optional
+from typing import Optional, List
 
 
 class Config:
@@ -35,3 +35,13 @@ class Config:
         except Exception as err:
             logger.error(f'Failed to parse boolean - returning default "False": {section} - {err}')
             return default
+
+    def get_scanner_config(self, scanner_name):
+        return {key: self.get_val(f'scanner:{scanner_name}', key) for key in self.config.options(f'scanner:{scanner_name}')}
+
+    def get_general_config(self):
+        return {section: dict(self.config.items(section)) for section in self.config.sections()}
+    
+    def get_scanner_names(self, scanner_type: str) -> List[str]:
+        return self.get_val('scanners', scanner_type).split(',')
+
