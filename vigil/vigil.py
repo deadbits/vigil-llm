@@ -10,7 +10,7 @@ from vigil.vectordb import VectorDB
 from vigil.dispatch import Manager
 from vigil.schema import BaseScanner
 
-#from vigil.scanners.yara import YaraScanner
+from vigil.scanners.yara import YaraScanner
 from vigil.scanners.vectordb import VectorScanner
 from vigil.scanners.transformer import TransformerScanner
 from vigil.scanners.similarity import SimilarityScanner
