@@ -26,7 +26,7 @@ class Vigil:
         self.output_scanner = None
         self.canary_tokens = CanaryTokens()
 
-        self._vectordb = None
+        self.vectordb = gl_vectordb
 
         self.config = Config(config_path)
         self._setup_from_config()
