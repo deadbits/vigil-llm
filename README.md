@@ -16,6 +16,7 @@ This application is currently in an **alpha** state and should be considered exp
 * Analyze LLM prompts for common injections and risky inputs
 * Interact via REST API server and command line utility
 * Scanners are modular and easily extensible
+* Evaluate detections and pipelines with **Vigil-Eval** (coming soon)
 * Available scan modules
     * [x] Vector database / text similarity
       * [Auto-updating on detected prompts](https://vigil.deadbits.ai/overview/use-vigil/auto-updating-vector-database) (optional)
