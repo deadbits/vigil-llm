@@ -170,7 +170,7 @@ The following metadata is stored alongside the detected prompt:
 }
 ```
 
-## Use Vigil 🛠️
+## Use Vigil 🔬
 
 Vigil can run as a REST API server or be imported directly into your Python project.
 
