@@ -17,19 +17,21 @@ from vigil.scanners.similarity import SimilarityScanner
 from vigil.scanners.sentiment import SentimentScanner
 
 
-gl_vectordb = None
-
-
 class Vigil:
+    vectordb = None
+
     def __init__(self, config_path: str):
         self.input_scanner = None
         self.output_scanner = None
         self.canary_tokens = CanaryTokens()
 
-        self.vectordb = gl_vectordb
-
         self.config = Config(config_path)
         self._setup_from_config()
+        self.vectordb = Vigil.vectordb
+
+    @classmethod
+    def _set_vectordb(cls, vectordb_instance):
+        cls.vectordb = vectordb_instance
 
     def _setup_from_config(self):
         self._input_scanners = self._setup_scanners(
@@ -72,7 +74,7 @@ class Vigil:
             'scanners': scanners,
             'auto_update': auto_update,
             'update_threshold': update_threshold,
-            'db_client': gl_vectordb if auto_update else None
+            'db_client': self.vectordb if auto_update else None
         }
         return Manager(**manager_args)
 
@@ -124,9 +126,7 @@ def setup_vectordb_scanner(scanner_conf, embedding_conf):
         }
     )
 
-    global gl_vectordb
-    if gl_vectordb is None:
-        gl_vectordb = vectordb
+    Vigil._set_vectordb(vectordb)
 
     return VectorScanner(
         config_dict={'threshold': float(vdb_threshold)},
