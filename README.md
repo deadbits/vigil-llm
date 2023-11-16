@@ -14,7 +14,7 @@ This application is currently in an **alpha** state and should be considered exp
 ## Highlights ✨
 
 * Analyze LLM prompts for common injections and risky inputs
-* [Interact via REST API server](#use-vigil-🔬)
+* [Interact via REST API server](#running-api-server)
 * [Use Vigil directly in your Python apps](#using-in-python)
 * Scanners are modular and easily extensible
 * Evaluate detections and pipelines with **Vigil-Eval** (coming soon)
