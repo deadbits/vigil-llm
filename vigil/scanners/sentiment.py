@@ -23,8 +23,6 @@ class SentimentScanner(BaseScanner):
     def analyze(self, scan_obj: ScanModel, scan_id: uuid.uuid4) -> ScanModel:
         logger.info(f'Performing scan; id="{scan_id}"')
 
-        # this scanner can be used on both prompts and responses
-        # so we need to check which one we're working with
         prompt = scan_obj.prompt if scan_obj.prompt_response is None else scan_obj.prompt_response
 
         try:

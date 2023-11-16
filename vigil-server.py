@@ -6,9 +6,9 @@ import argparse
 
 from loguru import logger
 
-from collections import OrderedDict
 from flask import Flask, request, jsonify, abort
 
+from vigil.core.cache import LRUCache
 from vigil.common import timestamp_str
 from vigil.vigil import Vigil
 
@@ -16,26 +16,6 @@ from vigil.vigil import Vigil
 logger.add('logs/server.log', format="{time} {level} {message}", level="INFO")
 
 app = Flask(__name__)
-
-
-class LRUCache:
-    def __init__(self, capacity: int):
-        self.cache = OrderedDict()
-        self.capacity = capacity
-
-    def get(self, key: str):
-        if key in self.cache:
-            value = self.cache.pop(key)
-            self.cache[key] = value
-            return value
-        return None
-
-    def set(self, key: str, value: any):
-        if key in self.cache:
-            self.cache.pop(key)
-        elif len(self.cache) >= self.capacity:
-            self.cache.popitem(last=False)
-        self.cache[key] = value
 
 
 def check_field(data, field_name: str, field_type: type, required: bool = True) -> str:

@@ -8,8 +8,8 @@ from vigil.schema import BaseScanner
 from vigil.schema import ScanModel
 from vigil.schema import SimilarityMatch
 
-from vigil.embedding import Embedder
-from vigil.embedding import cosine_similarity
+from vigil.core.embedding import Embedder
+from vigil.core.embedding import cosine_similarity
 
 
 class SimilarityScanner(BaseScanner):

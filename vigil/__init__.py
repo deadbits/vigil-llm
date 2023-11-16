@@ -2,7 +2,7 @@
 
 from importlib import metadata
 
-from vigil.config import Config
+from vigil.core.config import Config
 
 from vigil.common import uuid4_str
 from vigil.common import timestamp_str
@@ -17,10 +17,10 @@ from vigil.schema import YaraMatch
 from vigil.schema import ModelMatch
 from vigil.schema import SimilarityMatch
 
-from vigil.embedding import Embedder
-from vigil.embedding import cosine_similarity
+from vigil.core.embedding import Embedder
+from vigil.core.embedding import cosine_similarity
 
-from vigil.vectordb import VectorDB
+from vigil.core.vectordb import VectorDB
 
 __version__ = "0.5.1"
 __app__ = "vigil"

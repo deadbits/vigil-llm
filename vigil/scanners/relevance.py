@@ -3,7 +3,7 @@ import uuid
 import logging
 
 from vigil.schema import BaseScanner
-from vigil.llm import LLM
+from vigil.core.llm import LLM
 
 
 logging.basicConfig(level=logging.INFO)

@@ -4,11 +4,12 @@ from loguru import logger
 
 from typing import List, Dict
 
-from vigil.config import Config
-from vigil.canary import CanaryTokens
-from vigil.vectordb import VectorDB
 from vigil.dispatch import Manager
 from vigil.schema import BaseScanner
+
+from vigil.core.config import Config
+from vigil.core.canary import CanaryTokens
+from vigil.core.vectordb import VectorDB
 
 from vigil.scanners.yara import YaraScanner
 from vigil.scanners.vectordb import VectorScanner
