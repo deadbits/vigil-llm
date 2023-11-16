@@ -44,6 +44,6 @@ RUN echo "Installing Python dependencies ... " \
 # Expose port 5000 for the API server
 EXPOSE 5000
 
-COPY entrypoint.sh /entrypoint.sh
+COPY scripts/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh", "python", "vigil-server.py", "-c", "conf/server.conf"]
