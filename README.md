@@ -215,8 +215,10 @@ updated_prompt = vigil.canary_tokens.add(
 )
 result = vigil.canary_tokens.check(prompt=llm_response)
 
-# update vector db
-result, ids = vigil.vector_db.add(prompt=prompt)
+# update vector db with a detected prompt
+result, ids = vigil.vector_db.add_texts(
+    texts=[detected_prompt], metadatas=[{}]
+)
 ```
 
 ## Detection Methods 🔍
