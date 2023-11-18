@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="vigil-llm",
-    version="0.8.6",
+    version="0.8.7",
     description="LLM prompt and response security scanner",
     long_description=open("README.md", "r", encoding="utf8").read(),
     long_description_content_type="text/markdown",
