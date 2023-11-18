@@ -92,7 +92,7 @@ For more information on modifying the `server.conf` file, please review the [Con
 > Your VectorDB scanner embedding model setting must match the model used to generate the embeddings loaded into the database, or similarity search will not work.
 
 ### Load Datasets
-Load the appropriate datasets for your embedding model with the `loader.py` utility. If you don't intend on using the vector db scanner, you can skip this step.
+Load the appropriate [datasets](https://vigil.deadbits.ai/overview/use-vigil/load-datasets) for your embedding model with the `loader.py` utility. If you don't intend on using the vector db scanner, you can skip this step.
 
 ```bash
 python loader.py --conf conf/server.conf --dataset deadbits/vigil-instruction-bypass-ada-002
