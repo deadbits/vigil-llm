@@ -67,17 +67,16 @@ cd vigil-llm
 ### Install YARA
 Follow the instructions on the [YARA Getting Started documentation](https://yara.readthedocs.io/en/stable/gettingstarted.html) to download and install [YARA v4.3.2](https://github.com/VirusTotal/yara/releases).
 
-
 ### Setup Virtual Environment
 ```
 python3 -m venv venv
 source venv/bin/activate
 ```
 
-### Install Python Requirements
-Inside your virtual environment, install the required Python packages:
+### Install Vigil library
+Inside your virutal environment, install the application:
 ```
-pip install -r requirements.txt
+pip install -e .
 ```
 
 ### Load Datasets
@@ -112,12 +111,9 @@ python vigil-server.py --conf conf/server.conf
 
 ### Using in Python
 
-Vigil can also be used within your own Python application as a library. First install the library locally with:
-```bash
-pip install -e .
-```
+Vigil can also be used within your own Python application as a library.
 
-Then import the `Vigil` class and pass it your config file.
+Import the `Vigil` class and pass it your config file.
 
 ```python
 from vigil.vigil import Vigil
