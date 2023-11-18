@@ -100,7 +100,7 @@ def setup_sentiment_scanner(conf):
     return SentimentScanner(config_dict={'threshold': threshold})
 
 
-def setup_vectordb_scanner(scanner_conf, embedding_conf):
+def setup_vectordb(scanner_conf, embedding_conf):
     vdb_dir = scanner_conf['db_dir']
     vdb_collection = scanner_conf['collection']
     vdb_threshold = scanner_conf['threshold']
@@ -115,22 +115,41 @@ def setup_vectordb_scanner(scanner_conf, embedding_conf):
         logger.error('No embedding model set in config file')
         raise ValueError('No embedding model set in config file')
 
-    openai_key = embedding_conf['openai_api_key']
+    if emb_model == 'openai':
+        openai_key = embedding_conf['openai_api_key']
+        openai_model = embedding_conf['openai_model']
 
-    vectordb = VectorDB(
-        config_dict={
-            'db_dir': vdb_dir,
-            'collection_name': vdb_collection,
-            'n_results': vdb_n_results,
-            'embed_fn': emb_model,
-            'openai_key': openai_key
-        }
-    )
+        if openai_key is None or openai_model is None:
+            logger.error('OpenAI embedding model selected but no key or model name set in config')
+            raise ValueError('OpenAI embedding model selected but no key or model name set in config')
+
+        vectordb = VectorDB(config_dict={
+                'collection_name': vdb_collection,
+                'embed_fn': 'openai',
+                'openai_key': openai_key,
+                'openai_model': openai_model,
+                'db_dir': vdb_dir,
+                'n_results': vdb_n_results
+            })
+
+    else:
+        vectordb = VectorDB(config_dict={
+                'collection_name': vdb_collection,
+                'embed_fn': emb_model,
+                'db_dir': vdb_dir,
+                'n_results': vdb_n_results
+            })
+    
+    return vectordb
+
+
+def setup_vectordb_scanner(scanner_conf, embedding_conf):
+    vectordb = setup_vectordb(scanner_conf, embedding_conf)
 
     Vigil._set_vectordb(vectordb)
 
     return VectorScanner(
-        config_dict={'threshold': float(vdb_threshold)},
+        config_dict={'threshold': float(scanner_conf['threshold'])},
         db_client=vectordb
     )
 
@@ -143,6 +162,7 @@ def setup_similarity_scanner(scanner_conf, embedding_conf):
         logger.error('Missing configurations for Similarity Scanner')
         raise ValueError('Missing configurations for Similarity Scanner')
 
+    openai_key = None
     if emb_model == 'openai':
         openai_key = embedding_conf['openai_api_key']
 
