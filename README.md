@@ -79,10 +79,6 @@ Inside your virutal environment, install the application:
 pip install -e .
 ```
 
-### Load Datasets
-Follow the [datasets documentation](docs/datasets.md) to download the prompt injection and jailbreak datasets, and load them into the vector database. 
-
-
 ### Configure Vigil
 Open the `conf/server.conf` file in your favorite text editor:
 
@@ -93,7 +89,23 @@ vim conf/server.conf
 For more information on modifying the `server.conf` file, please review the [Configuration documentation](https://vigil.deadbits.ai/overview/use-vigil/configuration).
 
 > [!IMPORTANT]
-> Your VectorDB scanner embedding model setting must match the model used to generate the embeddings loaded into the database, or similarity search will not work. For example, if you used the Vigil datasets, the `model` field must be set to `openai` or `all-MiniLM-L6-v2`.
+> Your VectorDB scanner embedding model setting must match the model used to generate the embeddings loaded into the database, or similarity search will not work.
+
+### Load Datasets
+Load the appropriate datasets for your embedding model with the `loader.py` utility. If you don't intend on using the vector db scanner, you can skip this step.
+
+```bash
+python loader.py --conf conf/server.conf --dataset deadbits/vigil-instruction-bypass-ada-002
+python loader.py --conf conf/server.conf --dataset deadbits/vigil-jailbreak-ada-002
+```
+
+You can load your own datasets as long as you use the columns:
+
+| Column     | Type        |
+|------------|-------------|
+| text       | string      |
+| embeddings | list[float] |
+| model      | string      |
 
 ## Use Vigil 🔬
 
