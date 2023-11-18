@@ -2,7 +2,7 @@ import os
 
 from loguru import logger
 
-from typing import List, Dict
+from typing import List, Dict, Optional, Callable
 
 from vigil.dispatch import Manager
 from vigil.schema import BaseScanner
@@ -19,16 +19,17 @@ from vigil.scanners.sentiment import SentimentScanner
 
 
 class Vigil:
-    vectordb = None
+    vectordb: Optional[VectorDB] = None
 
     def __init__(self, config_path: str):
-        self.input_scanner = None
-        self.output_scanner = None
+        self.input_scanner: Optional[Manager] = None
+        self.output_scanner: Optional[Manager] = None
         self.canary_tokens = CanaryTokens()
 
         self.config = Config(config_path)
+        self._input_scanners: List[BaseScanner] = []
+        self._output_scanners: List[BaseScanner] = []
         self._setup_from_config()
-        self.vectordb = Vigil.vectordb
 
     @classmethod
     def _set_vectordb(cls, vectordb_instance):
@@ -41,7 +42,8 @@ class Vigil:
         self._output_scanners = self._setup_scanners(
             self.config.get_scanner_names('output_scanners')
         )
-        self._setup_managers()
+        self.input_scanner = self._create_manager('input_scanners', self._input_scanners)
+        self.output_scanner = self._create_manager('output_scanners', self._output_scanners)
 
     def _setup_scanners(self, scanner_names: List[str]) -> List[BaseScanner]:
         scanners = []
@@ -61,10 +63,6 @@ class Vigil:
 
         return scanners
 
-    def _setup_managers(self):
-        self.input_scanner = self._create_manager('input_scanners', self._input_scanners)
-        self.output_scanner = self._create_manager('output_scanners', self._output_scanners)
-
     def _create_manager(self, name: str, scanners: List[BaseScanner]) -> Manager:
         manager_config = self.config.get_general_config() if self.config else {}
         auto_update = manager_config.get('embedding', {}).get('auto_update', False)
@@ -80,11 +78,11 @@ class Vigil:
         return Manager(**manager_args)
 
     @staticmethod
-    def from_config(config_path: str):
+    def from_config(config_path: str) -> 'Vigil':
         return Vigil(config_path=config_path)
 
 
-def setup_yara_scanner(conf):
+def setup_yara_scanner(conf) -> BaseScanner:
     yara_dir = conf['rules_dir']
     if yara_dir is None:
         logger.error('No yara rules directory set in config')
@@ -95,12 +93,12 @@ def setup_yara_scanner(conf):
     return yara_scanner
 
 
-def setup_sentiment_scanner(conf):
+def setup_sentiment_scanner(conf) -> BaseScanner:
     threshold = float(conf['threshold'])
     return SentimentScanner(config_dict={'threshold': threshold})
 
 
-def setup_vectordb(scanner_conf, embedding_conf):
+def setup_vectordb(scanner_conf, embedding_conf) -> BaseScanner:
     vdb_dir = scanner_conf['db_dir']
     vdb_collection = scanner_conf['collection']
     vdb_threshold = scanner_conf['threshold']
@@ -143,7 +141,7 @@ def setup_vectordb(scanner_conf, embedding_conf):
     return vectordb
 
 
-def setup_vectordb_scanner(scanner_conf, embedding_conf):
+def setup_vectordb_scanner(scanner_conf, embedding_conf) -> BaseScanner:
     vectordb = setup_vectordb(scanner_conf, embedding_conf)
 
     Vigil._set_vectordb(vectordb)
@@ -154,7 +152,7 @@ def setup_vectordb_scanner(scanner_conf, embedding_conf):
     )
 
 
-def setup_similarity_scanner(scanner_conf, embedding_conf):
+def setup_similarity_scanner(scanner_conf, embedding_conf) -> BaseScanner:
     sim_threshold = scanner_conf['threshold']
     emb_model = embedding_conf['model']
 
@@ -173,7 +171,7 @@ def setup_similarity_scanner(scanner_conf, embedding_conf):
     })
 
 
-def setup_transformer_scanner(conf):
+def setup_transformer_scanner(conf) -> BaseScanner:
     lm_name = conf['model']
     threshold = conf['threshold']
 
@@ -187,7 +185,7 @@ def setup_transformer_scanner(conf):
     })
 
 
-SCANNER_SETUPS = {
+SCANNER_SETUPS: Dict[str, Callable] = {
     'yara': setup_yara_scanner,
     'sentiment': setup_sentiment_scanner,
     'vectordb': setup_vectordb_scanner,
