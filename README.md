@@ -3,7 +3,7 @@
 ## Overview 🏕️
 ⚡ Security scanner for LLM prompts ⚡
 
-`Vigil` is a Python library and REST API for assessing Large Language Model (LLM) prompts against a set of scanners to detect prompt injections, jailbreaks, and other potentially risky inputs. This repository also provides the detection signatures and datasets needed to get started with self-hosting.
+`Vigil` is a Python library and REST API for assessing Large Language Model prompts and responses against a set of scanners to detect prompt injections, jailbreaks, and other potential threats. This repository also provides the detection signatures and datasets needed to get started with self-hosting.
 
 This application is currently in an **alpha** state and should be considered experimental. Work is ongoing to expand detection mechanisms and features.
 
@@ -13,13 +13,12 @@ This application is currently in an **alpha** state and should be considered exp
 ## Highlights ✨
 
 * Analyze LLM prompts for common injections and risky inputs
-* [Interact via REST API server](#running-api-server)
-* [Use Vigil directly in your Python apps](#using-in-python)
+* [Use Vigil as a Python library](#using-in-python) or [REST API](#running-api-server)
 * Scanners are modular and easily extensible
 * Evaluate detections and pipelines with **Vigil-Eval** (coming soon)
 * Available scan modules
     * [x] Vector database / text similarity
-      * [Auto-updating on detected prompts](https://vigil.deadbits.ai/overview/use-vigil/auto-updating-vector-database) (optional)
+      * [Auto-updating on detected prompts](https://vigil.deadbits.ai/overview/use-vigil/auto-updating-vector-database)
     * [x] Heuristics via [YARA](https://virustotal.github.io/yara)
     * [x] Transformer model
     * [x] Prompt-response similarity
@@ -29,7 +28,6 @@ This application is currently in an **alpha** state and should be considered exp
     * [ ] Paraphrasing
 * Supports [local embeddings](https://www.sbert.net/) and/or [OpenAI](https://platform.openai.com/)
 * Signatures and embeddings for common attacks
-    * [Recently added support](https://huggingface.co/datasets/deadbits/vigil-gandalf-instruction-bypass-ada-002) for the [Lakera Gandalf dataset](https://huggingface.co/datasets/Lakera/gandalf_ignore_instructions)
 * Custom detections via YARA signatures
 * [Streamlit web UI playground](https://vigil.deadbits.ai/overview/use-vigil/web-server/web-ui-playground)
 
@@ -137,13 +135,14 @@ app.output_scanner.perform_scan(
     input_resp="LLM response goes here"
 )
 
-# use canary tokens
+# use canary tokens and returned updated prompt as a string
 updated_prompt = app.canary_tokens.add(
     prompt=prompt,
     always=always if always else False,
     length=length if length else 16, 
     header=header if header else '<-@!-- {canary} --@!->',
 )
+# returns True if a canary is found
 result = app.canary_tokens.check(prompt=llm_response)
 ```
 
