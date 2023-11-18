@@ -1,8 +1,11 @@
 # Vigil
 
-⚡ Security scanner for LLM prompts ⚡
+<p align="center">
+  <img width="460" height="300" src="docs/assets/logo.png">
+</p>
 
 ## Overview 🏕️
+⚡ Security scanner for LLM prompts ⚡
 
 `Vigil` is a Python library and REST API for assessing Large Language Model (LLM) prompts against a set of scanners to detect prompt injections, jailbreaks, and other potentially risky inputs. This repository also provides the detection signatures and datasets needed to get started with self-hosting.
 
