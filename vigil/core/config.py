@@ -14,7 +14,7 @@ class Config:
         self.config = configparser.ConfigParser()
         if not os.path.exists(self.config_file):
             logger.error(f'Config file not found: {self.config_file}')
-            sys.exit(1)
+            raise ValueError(f'Config file not found: {self.config_file}')
 
         logger.info(f'Loading config file: {self.config_file}')
         self.config.read(config_file)
