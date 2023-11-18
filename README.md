@@ -1,9 +1,5 @@
 # Vigil
 
-<p align="center">
-  <img src="docs/assets/logo.png" width="400px" alt="Vigil Logo">
-</p>
-
 ⚡ Security scanner for LLM prompts ⚡
 
 ## Overview 🏕️
