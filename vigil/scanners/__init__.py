@@ -4,7 +4,7 @@ from vigil.scanners.yara import YaraScanner
 from vigil.scanners.similarity import SimilarityScanner
 from vigil.scanners.sentiment import SentimentScanner
 
-__version__ = "0.5.1"
+__version__ = "0.9.7-alpha"
 __app__ = "vigil"
 __description__ = "LLM security scanner"
 

@@ -1,5 +1,6 @@
-import openai
 import numpy as np
+
+from openai import OpenAI
 
 from loguru import logger
 
@@ -24,9 +25,9 @@ class Embedder:
                 logger.error('No OpenAI API key passed to embedder.')
                 raise ValueError("No OpenAI API key provided.")
 
-            openai.api_key = openai_key
+            self.client = OpenAI(api_key=openai_key)
             try:
-                openai.Model.list()
+                self.client.models.list()
             except Exception as err:
                 logger.error(f'Failed to connect to OpenAI API: {err}')
                 raise Exception(f"Connection to OpenAI API failed: {err}")
@@ -55,11 +56,11 @@ class Embedder:
         logger.info('Generating embedding with OpenAI')
 
         try:
-            response = openai.Embedding.create(
+            response = self.client.embeddings.create(
                 input=input_data, model='text-embedding-ada-002'
             )
-            data = response['data'][0]
-            return data['embedding']
+            data = response.data[0]
+            return data.embedding
         except Exception as err:
             logger.error(f'Failed to generate embedding: {err}')
             return []

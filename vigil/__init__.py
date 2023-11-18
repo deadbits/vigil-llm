@@ -22,7 +22,7 @@ from vigil.core.embedding import cosine_similarity
 
 from vigil.core.vectordb import VectorDB
 
-__version__ = "0.5.1"
+__version__ = "0.9.7-alpha"
 __app__ = "vigil"
 __description__ = "LLM security scanner"
 
