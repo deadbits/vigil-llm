@@ -1,8 +1,6 @@
 # Vigil
 
-<p align="center">
-  <img width="460" height="300" src="docs/assets/logo.png">
-</p>
+![logo](docs/assets/logo.png)
 
 ## Overview 🏕️
 ⚡ Security scanner for LLM prompts ⚡
