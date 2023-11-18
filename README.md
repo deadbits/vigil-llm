@@ -1,10 +1,14 @@
 # Vigil
 
+<p align="center">
+  <img src="docs/assets/logo.png" width="400px" alt="Vigil Logo">
+</p>
+
 ⚡ Security scanner for LLM prompts ⚡
 
 ## Overview 🏕️
 
-`Vigil` is a Python framework and REST API for assessing Large Language Model (LLM) prompts against a set of scanners to detect prompt injections, jailbreaks, and other potentially risky inputs. This repository also provides the detection signatures and datasets needed to get started with self-hosting.
+`Vigil` is a Python library and REST API for assessing Large Language Model (LLM) prompts against a set of scanners to detect prompt injections, jailbreaks, and other potentially risky inputs. This repository also provides the detection signatures and datasets needed to get started with self-hosting.
 
 This application is currently in an **alpha** state and should be considered experimental. Work is ongoing to expand detection mechanisms and features.
 
@@ -115,40 +119,37 @@ python vigil-server.py --conf conf/server.conf
 
 ### Using in Python
 
-Vigil can also be used within your own Python application. Simply import the `Vigil` class and pass it your config file.
+Vigil can also be used within your own Python application as a library. First install the library locally with:
+```bash
+pip install -e .
+```
+
+Then import the `Vigil` class and pass it your config file.
 
 ```python
 from vigil.vigil import Vigil
 
-vigil = Vigil.from_config('conf/openai.conf')
+app = Vigil.from_config('conf/openai.conf')
 
 # assess prompt against all input scanners
-result = vigil.input_scanner.perform_scan(
+result = app.input_scanner.perform_scan(
     input_prompt="prompt goes here"
 )
 
-if 'Potential prompt injection detected' in result['messages']:
-    take_some_action()
-
 # assess prompt and response against all output scanners
-vigil.output_scanner.perform_scan(
-    input_text="prompt goes here",
-    input_resp="response goes here"
+app.output_scanner.perform_scan(
+    input_prompt="prompt goes here",
+    input_resp="LLM response goes here"
 )
 
 # use canary tokens
-updated_prompt = vigil.canary_tokens.add(
+updated_prompt = app.canary_tokens.add(
     prompt=prompt,
     always=always if always else False,
     length=length if length else 16, 
     header=header if header else '<-@!-- {canary} --@!->',
 )
-result = vigil.canary_tokens.check(prompt=llm_response)
-
-# update vector db with a detected prompt
-result, ids = vigil.vector_db.add_texts(
-    texts=[detected_prompt], metadatas=[{}]
-)
+result = app.canary_tokens.check(prompt=llm_response)
 ```
 
 ## Detection Methods 🔍
