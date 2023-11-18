@@ -1,5 +1,3 @@
-# Vigil
-
 ![logo](docs/assets/logo.png)
 
 ## Overview 🏕️
