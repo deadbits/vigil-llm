@@ -4,6 +4,12 @@ from typing import List, Optional, Dict
 from pydantic import BaseModel, Field
 
 
+class DatasetEntry(BaseModel):
+    text: str = ''
+    embeddings: List[float] = []
+    metadata: dict = {'model': 'unknown'}
+
+
 class ScanModel(BaseModel):
     prompt: str = ''
     prompt_response: str = None
