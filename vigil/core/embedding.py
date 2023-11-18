@@ -1,6 +1,6 @@
-import openai
 import numpy as np
 
+from openai import OpenAI
 from loguru import logger
 
 from typing import List, Dict
@@ -17,6 +17,7 @@ def cosine_similarity(embedding1: List, embedding2: List) -> float:
 class Embedder:
     def __init__(self, model_name: str, openai_key: str = None):
         self.name = 'embedder'
+        self._client = OpenAI(api_key=openai_key)
 
         if model_name == 'openai':
             logger.info('Using OpenAI embedding function.')
@@ -24,9 +25,8 @@ class Embedder:
                 logger.error('No OpenAI API key passed to embedder.')
                 raise ValueError("No OpenAI API key provided.")
 
-            openai.api_key = openai_key
             try:
-                openai.Model.list()
+                self._client.models.list()
             except Exception as err:
                 logger.error(f'Failed to connect to OpenAI API: {err}')
                 raise Exception(f"Connection to OpenAI API failed: {err}")
@@ -55,11 +55,9 @@ class Embedder:
         logger.info('Generating embedding with OpenAI')
 
         try:
-            response = openai.Embedding.create(
-                input=input_data, model='text-embedding-ada-002'
-            )
-            data = response['data'][0]
-            return data['embedding']
+            response = self._client.embeddings.create(input=input_data, model='text-embedding-ada-002')
+            data = response.data[0]
+            return data.embedding
         except Exception as err:
             logger.error(f'Failed to generate embedding: {err}')
             return []
