@@ -1,53 +1,60 @@
 from abc import ABC, abstractmethod
 from uuid import UUID, uuid4
-from typing import List, Optional, Dict
+from enum import Enum
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
+
+from vigil.common import timestamp_str
+
+
+class StatusEmum(str, Enum):
+    SUCCESS = 'success'
+    FAILED = 'failed'
+    PARTIAL = 'partial_success'
 
 
 class DatasetEntry(BaseModel):
     text: str = ''
     embeddings: List[float] = []
-    metadata: dict = {'model': 'unknown'}
+    metadata: Dict = {'model': 'unknown'}
 
 
 class ScanModel(BaseModel):
     prompt: str = ''
-    prompt_response: str = None
-    embedding: List[float] = []
-    results: List = []
+    prompt_response: Optional[str] = None
+    results: List[Dict[str, Any]] = []
 
 
 class ResponseModel(BaseModel):
-    status: str = ''
+    status: StatusEmum = StatusEmum.SUCCESS
     uuid: UUID = Field(default_factory=uuid4)
-    timestamp: str = ''
+    timestamp: str = Field(default_factory=timestamp_str)
     prompt: str = ''
-    prompt_response: str = None
-    prompt_entropy: float = 0.0
+    prompt_response: Optional[str] = None
+    prompt_entropy: Optional[float] = None
     messages: List[str] = []
     errors: List[str] = []
-    results: Dict[str, List[dict]] = {}
+    results: Dict[str, List[Dict[str, Any]]] = {}
 
 
 class BaseScanner(ABC):
-    def __init__(self, name: str = '', config_dict: Dict = {}) -> None:
+    def __init__(self, name: str = '') -> None:
         self.name = name
-        self.config = config_dict
 
     @abstractmethod
-    def analyze(self, prompt: str = None, response: str = None, scan_uuid: UUID = uuid4()) -> ScanModel:
-        pass
+    def analyze(self, scan_obj: ScanModel, scan_id: UUID = uuid4()) -> ScanModel:
+        raise NotImplementedError('This method needs to be overridden in the subclass.')
 
 
 class VectorMatch(BaseModel):
     text: str = ''
-    metadata: Optional[dict] = {}
+    metadata: Optional[Dict] = {}
     distance: float = 0.0
 
 
 class YaraMatch(BaseModel):
     rule_name: str = ''
-    category: str = ''
+    category: Optional[str] = ''
     tags: List[str] = []
 
 
