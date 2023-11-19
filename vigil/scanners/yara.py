@@ -11,9 +11,9 @@ from vigil.schema import BaseScanner
 
 
 class YaraScanner(BaseScanner):
-    def __init__(self, config_dict: dict):
+    def __init__(self, rules_dir: str):
         self.name = 'scanner:yara'
-        self.rules_dir = config_dict['rules_dir']
+        self.rules_dir = rules_dir
         self.compiled_rules = None
 
         if not os.path.exists(self.rules_dir):

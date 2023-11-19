@@ -68,14 +68,13 @@ class Vigil:
         auto_update = manager_config.get('embedding', {}).get('auto_update', False)
         update_threshold = int(manager_config.get('embedding', {}).get('update_threshold', 3))
 
-        manager_args = {
-            'name': name,
-            'scanners': scanners,
-            'auto_update': auto_update,
-            'update_threshold': update_threshold,
-            'db_client': self.vectordb if auto_update else None
-        }
-        return Manager(**manager_args)
+        return Manager(
+            name=name,
+            scanners=scanners,
+            auto_update=auto_update,
+            update_threshold=update_threshold,
+            db_client=self.vectordb if auto_update else None
+        )
 
     @staticmethod
     def from_config(config_path: str) -> 'Vigil':
@@ -88,14 +87,14 @@ def setup_yara_scanner(conf) -> BaseScanner:
         logger.error('No yara rules directory set in config')
         raise ValueError('No yara rules directory set in config')
 
-    yara_scanner = YaraScanner(config_dict={'rules_dir': yara_dir})
+    yara_scanner = YaraScanner(rules_dir=yara_dir)
     yara_scanner.load_rules()
     return yara_scanner
 
 
 def setup_sentiment_scanner(conf) -> BaseScanner:
     threshold = float(conf['threshold'])
-    return SentimentScanner(config_dict={'threshold': threshold})
+    return SentimentScanner(threshold=threshold)
 
 
 def setup_vectordb(scanner_conf, embedding_conf) -> BaseScanner:
@@ -121,22 +120,22 @@ def setup_vectordb(scanner_conf, embedding_conf) -> BaseScanner:
             logger.error('OpenAI embedding model selected but no key or model name set in config')
             raise ValueError('OpenAI embedding model selected but no key or model name set in config')
 
-        vectordb = VectorDB(config_dict={
-                'collection_name': vdb_collection,
-                'embed_fn': 'openai',
-                'openai_key': openai_key,
-                'openai_model': openai_model,
-                'db_dir': vdb_dir,
-                'n_results': vdb_n_results
-            })
+        vectordb = VectorDB(
+                embed_model='openai',
+                collection_name=vdb_collection,
+                db_dir=vdb_dir,
+                n_results=int(vdb_n_results),
+                openai_key=openai_key,
+                openai_model=openai_model
+            )
 
     else:
-        vectordb = VectorDB(config_dict={
-                'collection_name': vdb_collection,
-                'embed_fn': emb_model,
-                'db_dir': vdb_dir,
-                'n_results': vdb_n_results
-            })
+        vectordb = VectorDB(
+                embed_model=emb_model,
+                collection_name=vdb_collection,
+                db_dir=vdb_dir,
+                n_results=int(vdb_n_results)
+            )
     
     return vectordb
 
@@ -147,8 +146,8 @@ def setup_vectordb_scanner(scanner_conf, embedding_conf) -> BaseScanner:
     Vigil._set_vectordb(vectordb)
 
     return VectorScanner(
-        config_dict={'threshold': float(scanner_conf['threshold'])},
-        db_client=vectordb
+        db_client=vectordb,
+        threshold=float(scanner_conf['threshold'])
     )
 
 
@@ -164,11 +163,11 @@ def setup_similarity_scanner(scanner_conf, embedding_conf) -> BaseScanner:
     if emb_model == 'openai':
         openai_key = embedding_conf['openai_api_key']
 
-    return SimilarityScanner(config_dict={
-        'threshold': sim_threshold,
-        'model_name': emb_model,
-        'openai_key': openai_key if openai_key else None
-    })
+    return SimilarityScanner(
+        model=emb_model,
+        threshold=float(sim_threshold),
+        openai_key=openai_key
+    )
 
 
 def setup_transformer_scanner(conf) -> BaseScanner:
@@ -179,10 +178,10 @@ def setup_transformer_scanner(conf) -> BaseScanner:
         logger.error('Missing configurations for Transformer Scanner')
         raise ValueError('Missing configurations for Transformer Scanner')
 
-    return TransformerScanner(config_dict={
-        'model': lm_name,
-        'threshold': threshold
-    })
+    return TransformerScanner(
+        model=lm_name,
+        threshold=float(threshold)
+    )
 
 
 SCANNER_SETUPS: Dict[str, Callable] = {

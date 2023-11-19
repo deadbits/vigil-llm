@@ -6,12 +6,14 @@ from vigil.schema import BaseScanner
 from vigil.schema import ScanModel
 from vigil.schema import VectorMatch
 
+from vigil.core.vectordb import VectorDB
+
 
 class VectorScanner(BaseScanner):
-    def __init__(self, config_dict: dict, db_client):
+    def __init__(self, db_client: VectorDB, threshold: float):
         self.name = 'scanner:vectordb'
         self.database = db_client
-        self.threshold = config_dict['threshold']
+        self.threshold = threshold
         logger.success('Loaded scanner.')
 
     def analyze(self, scan_obj: ScanModel, scan_id: uuid.uuid4) -> ScanModel:

@@ -2,7 +2,7 @@ import uuid
 
 from loguru import logger
 
-from typing import Dict
+from typing import Optional
 
 from vigil.schema import BaseScanner
 from vigil.schema import ScanModel
@@ -14,12 +14,12 @@ from vigil.core.embedding import cosine_similarity
 
 class SimilarityScanner(BaseScanner):
     """ Compare the cosine similarity of the prompt and response """
-    def __init__(self, config_dict: Dict):
+    def __init__(self, model: str, threshold: float, openai_key: Optional[str] = None):
         self.name = 'scanner:response-similarity'
-        self.threshold = float(config_dict['threshold'])
+        self.threshold = threshold
         self.embedder = Embedder(
-            config_dict['model_name'],
-            config_dict['openai_key'] if 'openai_key' in config_dict else None,
+            model_name=model,
+            openai_key=openai_key,
         )
 
         logger.success('Loaded scanner.')

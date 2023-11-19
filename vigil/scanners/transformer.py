@@ -10,10 +10,10 @@ from vigil.schema import BaseScanner
 
 
 class TransformerScanner(BaseScanner):
-    def __init__(self, config_dict: dict):
+    def __init__(self, model: str, threshold: float):
         self.name = 'scanner:transformer'
-        self.model_name = config_dict['model']
-        self.threshold = float(config_dict['threshold'])
+        self.model_name = model
+        self.threshold = threshold
 
         try:
             self.pipeline = pipeline('text-classification', model=self.model_name)

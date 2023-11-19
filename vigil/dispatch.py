@@ -45,18 +45,17 @@ class Manager:
             else:
                 logger.info(f'{self.name} Auto-update vectordb enabled: threshold={self.update_threshold}')
 
-    def perform_scan(self, input_prompt: str, input_resp: str = None) -> dict:
+    def perform_scan(self, prompt: str, prompt_response: str = None) -> dict:
         resp = ResponseModel(
             status='success',
-            timestamp=timestamp_str(),
-            prompt=input_prompt,
-            prompt_response=input_resp,
-            prompt_entropy=calculate_entropy(input_prompt),
+            prompt=prompt,
+            prompt_response=prompt_response,
+            prompt_entropy=calculate_entropy(prompt),
         )
 
         resp.uuid = str(resp.uuid)
 
-        if not input_prompt:
+        if not prompt:
             resp.errors.append('Input prompt value is empty')
             resp.status = 'failed'
             logger.error(f'{self.name} Input prompt value is empty')
@@ -65,8 +64,8 @@ class Manager:
         logger.info(f'{self.name} Dispatching scan request id={resp.uuid}')
 
         scan_results = self.dispatcher.run(
-            input_prompt=input_prompt,
-            input_resp=input_resp,
+            prompt=prompt,
+            prompt_response=prompt_response,
             scan_id={resp.uuid}
         )
 
@@ -90,7 +89,7 @@ class Manager:
         if self.auto_update and (total_matches >= self.update_threshold):
             logger.info(f'{self.name} (auto-update) Adding detected prompt to db id={resp.uuid}')
             doc_id = self.db_client.add_texts(
-                [input_prompt],
+                [prompt],
                 [
                     {
                         'uuid': resp.uuid,
@@ -112,13 +111,13 @@ class Scanner:
         self.name = 'dispatch:scan'
         self.scanners = scanners
 
-    def run(self, input_prompt: str, scan_id: uuid.uuid4, input_resp: str = None) -> Dict:
+    def run(self, prompt: str, scan_id: uuid.uuid4, prompt_response: str = None) -> Dict:
         response = {}
 
         for scanner in self.scanners:
             scan_obj = ScanModel(
-                prompt=input_prompt,
-                prompt_response=input_resp
+                prompt=prompt,
+                prompt_response=prompt_response
             )
 
             try:

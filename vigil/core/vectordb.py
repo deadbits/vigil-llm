@@ -3,7 +3,7 @@ import chromadb
 
 from loguru import logger
 
-from typing import List
+from typing import List, Optional
 
 from chromadb.config import Settings
 from chromadb.utils import embedding_functions
@@ -12,24 +12,32 @@ from vigil.common import uuid4_str
 
 
 class VectorDB:
-    def __init__(self, config_dict: dict):
+    def __init__(self, 
+        embed_model: str, 
+        collection_name: str, 
+        db_dir: str,
+        n_results: int, 
+        openai_key: Optional[str] = None, 
+        openai_model: Optional[str] = None
+    ):
+        """ Initialize VectorDB client """
         self.name = 'database:vector'
 
-        if config_dict['embed_fn'] == 'openai':
+        if embed_model == 'openai':
             logger.info('Using OpenAI embedding function')
             self.embed_fn = embedding_functions.OpenAIEmbeddingFunction(
-                api_key=config_dict['openai_key'],
+                api_key=openai_key,
                 model_name='text-embedding-ada-002'
             )
         else:
             logger.info(f'Using SentenceTransformer embedding function: {config_dict["embed_fn"]}')
             self.embed_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
-                model_name=config_dict['embed_fn']
+                model_name=embed_model
             )
 
-        self.collection_name = config_dict['collection_name']
-        self.db_dir = config_dict['db_dir']
-        self.n_results = int(config_dict['n_results'])
+        self.collection_name = collection_name
+        self.db_dir = db_dir
+        self.n_results = n_results
 
         if not hasattr(self.embed_fn, "__call__"):
             logger.error('Embedding function is not callable')

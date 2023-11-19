@@ -14,9 +14,10 @@ nltk.download('vader_lexicon')
 
 
 class SentimentScanner(BaseScanner):
-    def __init__(self, config_dict: dict):
+    """ Sentiment analysis of a prompt and response """
+    def __init__(self, threshold: float):
         self.name = 'scanner:sentiment'
-        self.threshold = float(config_dict['threshold'])
+        self.threshold = threshold
         self.analyzer = SentimentIntensityAnalyzer()
         logger.success('Loaded scanner.')
 
