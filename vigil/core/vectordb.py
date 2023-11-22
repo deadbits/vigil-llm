@@ -3,7 +3,7 @@ import chromadb
 
 from loguru import logger
 
-from typing import List
+from typing import List, Optional
 
 from chromadb.config import Settings
 from chromadb.utils import embedding_functions
@@ -12,34 +12,41 @@ from vigil.common import uuid4_str
 
 
 class VectorDB:
-    def __init__(self, config_dict: dict):
+    def __init__(self, 
+        model: str, 
+        collection: str, 
+        db_dir: str,
+        n_results: int, 
+        openai_key: Optional[str] = None
+    ):
+        """ Initialize Chroma vector db client """
         self.name = 'database:vector'
 
-        if config_dict['embed_fn'] == 'openai':
+        if model == 'openai':
             logger.info('Using OpenAI embedding function')
             self.embed_fn = embedding_functions.OpenAIEmbeddingFunction(
-                api_key=config_dict['openai_key'],
+                api_key=openai_key,
                 model_name='text-embedding-ada-002'
             )
         else:
             logger.info(f'Using SentenceTransformer embedding function: {config_dict["embed_fn"]}')
             self.embed_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
-                model_name=config_dict['embed_fn']
+                model_name=model
             )
 
-        self.collection_name = config_dict['collection_name']
-        self.db_dir = config_dict['db_dir']
-        self.n_results = int(config_dict['n_results'])
+        self.collection = collection
+        self.db_dir = db_dir
+        self.n_results = int(n_results)
 
         if not hasattr(self.embed_fn, "__call__"):
             logger.error('Embedding function is not callable')
-            raise ValueError('[database:vectordb] Embedding function is not a function')
+            raise ValueError('Embedding function is not a function')
 
         self.client = chromadb.PersistentClient(
             path=self.db_dir,
             settings=Settings(anonymized_telemetry=False, allow_reset=True),
         )
-        self.collection = self.get_or_create_collection(self.collection_name)
+        self.collection = self.get_or_create_collection(self.collection)
         logger.success('Loaded database')
 
     def get_or_create_collection(self, name: str):

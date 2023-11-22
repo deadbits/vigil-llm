@@ -8,20 +8,22 @@ from vigil.schema import ModelMatch
 from vigil.schema import ScanModel
 from vigil.schema import BaseScanner
 
+from vigil.registry import Registration
 
+
+@Registration.scanner(name='transformer', requires_config=True)
 class TransformerScanner(BaseScanner):
-    def __init__(self, config_dict: dict):
+    def __init__(self, model: str, threshold: float):
         self.name = 'scanner:transformer'
-        self.model_name = config_dict['model']
-        self.threshold = float(config_dict['threshold'])
+        self.model_name = model
+        self.threshold = float(threshold)
 
         try:
             self.pipeline = pipeline('text-classification', model=self.model_name)
-            logger.info(f'Model loaded: {self.model_name}')
         except Exception as err:
             logger.error(f'Failed to load model: {err}')
 
-        logger.success(f'Scanner loaded: {self.model_name}')
+        logger.success(f'Loaded scanner: {self.model_name}')
 
     def analyze(self, scan_obj: ScanModel, scan_id: uuid.uuid4) -> ScanModel:
         logger.info(f'Performing scan; id={scan_id}')
