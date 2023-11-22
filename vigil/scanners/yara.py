@@ -8,8 +8,10 @@ from vigil.schema import YaraMatch
 from vigil.schema import ScanModel
 from vigil.schema import BaseScanner
 
+from vigil.registry import Registration
 
 
+@Registration.scanner(name='yara', requires_config=True)
 class YaraScanner(BaseScanner):
     def __init__(self, rules_dir: str):
         self.name = 'scanner:yara'
@@ -23,6 +25,9 @@ class YaraScanner(BaseScanner):
         if not os.path.isdir(self.rules_dir):
             logger.error(f'Path is not a valid directory: {self.rules_dir}')
             raise Exception
+        
+        self.load_rules()
+        logger.success('Loaded scanner')
 
     def load_rules(self) -> bool:
         """Compile all YARA rules in a directory and store in memory"""
@@ -30,7 +35,7 @@ class YaraScanner(BaseScanner):
         rules = os.listdir(self.rules_dir)
 
         if len(rules) == 0:
-            return False
+            return
 
         yara_paths = {}
         for _file in rules:
@@ -39,11 +44,9 @@ class YaraScanner(BaseScanner):
 
         try:
             self.compiled_rules = yara.compile(filepaths=yara_paths)
-            logger.success('Rules successfully compiled')
-            return True
         except Exception as err:
             logger.error(f'YARA compilation error: {err}')
-            return False
+            raise err
 
     def is_yara_file(self, file_path: str) -> bool:
         """Check if file is rule by extension"""

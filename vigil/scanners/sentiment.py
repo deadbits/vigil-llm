@@ -9,17 +9,19 @@ from vigil.schema import BaseScanner
 from vigil.schema import ScanModel
 from vigil.schema import SentimentMatch
 
+from vigil.registry import Registration
 
 nltk.download('vader_lexicon')
 
 
+@Registration.scanner(name='sentiment', requires_config=True)
 class SentimentScanner(BaseScanner):
     """ Sentiment analysis of a prompt and response """
     def __init__(self, threshold: float):
         self.name = 'scanner:sentiment'
-        self.threshold = threshold
+        self.threshold = float(threshold)
         self.analyzer = SentimentIntensityAnalyzer()
-        logger.success('Loaded scanner.')
+        logger.success('Loaded scanner')
 
     def analyze(self, scan_obj: ScanModel, scan_id: uuid.uuid4) -> ScanModel:
         logger.info(f'Performing scan; id="{scan_id}"')

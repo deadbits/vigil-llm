@@ -2,27 +2,26 @@ import uuid
 
 from loguru import logger
 
-from typing import Optional
+from typing import Optional, Callable
 
 from vigil.schema import BaseScanner
 from vigil.schema import ScanModel
 from vigil.schema import SimilarityMatch
 
-from vigil.core.embedding import Embedder
 from vigil.core.embedding import cosine_similarity
 
+from vigil.registry import Registration
 
+
+@Registration.scanner(name='similarity', requires_config=True, requires_embedding=True)
 class SimilarityScanner(BaseScanner):
     """ Compare the cosine similarity of the prompt and response """
-    def __init__(self, model: str, threshold: float, openai_key: Optional[str] = None):
+    def __init__(self, threshold: float, embedder: Callable):
         self.name = 'scanner:response-similarity'
-        self.threshold = threshold
-        self.embedder = Embedder(
-            model_name=model,
-            openai_key=openai_key,
-        )
+        self.threshold = float(threshold)
+        self.embedder = embedder
 
-        logger.success('Loaded scanner.')
+        logger.success('Loaded scanner')
 
     def analyze(self, scan_obj: ScanModel, scan_id: uuid.uuid4) -> ScanModel:
         logger.info(f'Performing scan; id={scan_id}')
