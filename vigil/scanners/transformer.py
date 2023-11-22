@@ -20,7 +20,6 @@ class TransformerScanner(BaseScanner):
 
         try:
             self.pipeline = pipeline('text-classification', model=self.model_name)
-            logger.info(f'Model loaded: {self.model_name}')
         except Exception as err:
             logger.error(f'Failed to load model: {err}')
 
