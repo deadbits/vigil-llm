@@ -45,6 +45,10 @@ class BaseScanner(ABC):
     def analyze(self, scan_obj: ScanModel, scan_id: UUID = uuid4()) -> ScanModel:
         raise NotImplementedError('This method needs to be overridden in the subclass.')
 
+    def post_init(self):
+        """ Optional post-initialization method """
+        pass
+
 
 class VectorMatch(BaseModel):
     text: str = ''
