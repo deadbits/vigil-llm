@@ -16,11 +16,12 @@ def cosine_similarity(embedding1: List, embedding2: List) -> float:
 
 
 class Embedder:
-    def __init__(self, model_name: str, openai_key: str = None):
+    def __init__(self, model: str, openai_key: str = None):
         self.name = 'embedder'
+        self.model_name = model
 
-        if model_name == 'openai':
-            logger.info('Using OpenAI embedding function.')
+        if model == 'openai':
+            logger.info('Using OpenAI')
             if openai_key is None:
                 logger.error('No OpenAI API key passed to embedder.')
                 raise ValueError("No OpenAI API key provided.")
@@ -32,29 +33,26 @@ class Embedder:
                 logger.error(f'Failed to connect to OpenAI API: {err}')
                 raise Exception(f"Connection to OpenAI API failed: {err}")
 
-            self.model_name = 'openai'
-            self.embed_func = self.openai
+            self.embed_func = self._openai
 
         else:
-            logger.info(f'Using SentenceTransformer embedding function: {model_name}')
+            logger.info(f'Using SentenceTransformer: {model}')
             try:
-                self.model = SentenceTransformer(model_name)
-                logger.success(f'Loaded model: {model_name}')
+                self.model = SentenceTransformer(model)
+                logger.success(f'Loaded model: {model}')
             except Exception as err:
-                logger.error(f'Failed to load model: {model_name} error="{err}"')
+                logger.error(f'Failed to load model: {model} error="{err}"')
                 raise ValueError(f"Failed to load SentenceTransformer model: {err}")
 
-            self.model_name = model_name
-            self.embed_func = self.transformer
+            self.embed_func = self._transformer
 
-        logger.success('Loaded embedder.')
+        logger.success('Loaded embedder')
 
     def generate(self, input_data: str) -> List:
+        logger.info(f'Generating with: {self.model_name}')
         return self.embed_func(input_data)
 
-    def openai(self, input_data: str) -> List:
-        logger.info('Generating embedding with OpenAI')
-
+    def _openai(self, input_data: str) -> List:
         try:
             response = self.client.embeddings.create(
                 input=input_data, model='text-embedding-ada-002'
@@ -65,13 +63,11 @@ class Embedder:
             logger.error(f'Failed to generate embedding: {err}')
             return []
 
-    def transformer(self, input_data: str) -> List:
-        logger.info('Generating embedding with SentenceTransformer')
-
+    def _transformer(self, input_data: str) -> List:
         try:
             results = self.model.encode(input_data).tolist()
             return results
         except Exception as err:
-            logger.error(f'Failed to encode input data: {err}')
+            logger.error(f'Failed to generate embedding: {err}')
             return []
 

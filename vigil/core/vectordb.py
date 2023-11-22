@@ -13,17 +13,16 @@ from vigil.common import uuid4_str
 
 class VectorDB:
     def __init__(self, 
-        embed_model: str, 
-        collection_name: str, 
+        model: str, 
+        collection: str, 
         db_dir: str,
         n_results: int, 
-        openai_key: Optional[str] = None, 
-        openai_model: Optional[str] = None
+        openai_key: Optional[str] = None
     ):
-        """ Initialize VectorDB client """
+        """ Initialize Chroma vector db client """
         self.name = 'database:vector'
 
-        if embed_model == 'openai':
+        if model == 'openai':
             logger.info('Using OpenAI embedding function')
             self.embed_fn = embedding_functions.OpenAIEmbeddingFunction(
                 api_key=openai_key,
@@ -32,22 +31,22 @@ class VectorDB:
         else:
             logger.info(f'Using SentenceTransformer embedding function: {config_dict["embed_fn"]}')
             self.embed_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
-                model_name=embed_model
+                model_name=model
             )
 
-        self.collection_name = collection_name
+        self.collection = collection
         self.db_dir = db_dir
-        self.n_results = n_results
+        self.n_results = int(n_results)
 
         if not hasattr(self.embed_fn, "__call__"):
             logger.error('Embedding function is not callable')
-            raise ValueError('[database:vectordb] Embedding function is not a function')
+            raise ValueError('Embedding function is not a function')
 
         self.client = chromadb.PersistentClient(
             path=self.db_dir,
             settings=Settings(anonymized_telemetry=False, allow_reset=True),
         )
-        self.collection = self.get_or_create_collection(self.collection_name)
+        self.collection = self.get_or_create_collection(self.collection)
         logger.success('Loaded database')
 
     def get_or_create_collection(self, name: str):
