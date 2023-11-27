@@ -7,7 +7,14 @@ from loguru import logger
 from vigil.core.config import Config
 from vigil.core.loader import Loader
 
-from vigil.vigil import setup_vectordb
+from vigil.core.vectordb import VectorDB
+
+
+def setup_vectordb(conf: Config) -> VectorDB:
+    full_config = conf.get_general_config()
+    params = full_config.get('vectordb', {})
+    params.update(full_config.get('embedding', {}))
+    return VectorDB(**params)
 
 
 if __name__ == "__main__":
@@ -32,12 +39,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     conf = Config(args.config)
-
-    embedding_conf = conf.get_general_config().get('embedding', {})
-    scanner_conf = conf.get_scanner_config('vectordb')
-
-    logger.info(f'using database directory: {scanner_conf.get("db_dir")}')
-    vdb = setup_vectordb(scanner_conf, embedding_conf)
+    vdb = setup_vectordb(conf)
 
     data_loader = Loader(vector_db=vdb)
     data_loader.load_dataset(args.dataset)
