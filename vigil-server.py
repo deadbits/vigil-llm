@@ -40,11 +40,11 @@ def check_field(data, field_name: str, field_type: type, required: bool = True) 
 
 @app.route("/settings", methods=["GET"])
 def show_settings():
-    """Return the current configuration settings"""
+    """Return the current configuration settings, but drop the OpenAI API key if it's there"""
     logger.info(f"({request.path}) Returning config dictionary")
-    config_dict = {
-        s: dict(vigil.config.config.items(s)) for s in vigil.config.config.sections()
-    }
+    config_dict = {}
+    for key, value in vigil._config.get_general_config().items():
+        config_dict[key] = value
 
     if "embedding" in config_dict:
         config_dict["embedding"].pop("openai_api_key", None)
