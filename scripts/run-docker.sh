@@ -35,5 +35,6 @@ docker run --rm -it \
     --mount "type=bind,src=./data/huggingface,dst=/root/.cache/huggingface/" \
     --mount "type=bind,src=./data,dst=/home/vigil/vigil-llm/data" \
     --mount "type=bind,src=./,dst=/app" \
+    --restart always \
     ${ENTRYPOINT} \
-    vigil-llm
+    "${CONTAINER_ID}"
