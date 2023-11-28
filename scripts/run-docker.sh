@@ -29,7 +29,7 @@ echo "Running container ${CONTAINER_ID} on port ${PORT} with config file ./conf/
 
 
 #shellcheck disable=SC2086
-docker run --rm -it \
+docker run \
     --name vigil-llm \
     --publish "${PORT}:5000" \
     --detach \
