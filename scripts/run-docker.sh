@@ -15,13 +15,18 @@ else
     ENTRYPOINT=""
 fi
 
+
 if [ ! -f .dockerenv ]; then
     echo "Creating empty .dockerenv"
     touch .dockerenv
 fi
 
+if [ -z "${CONFIG_FILE}" ]; then
+    CONFIG_FILE="server.conf"
+fi
 
-CONFIG_FILE="server.conf"
+echo "Running container ${CONTAINER_ID} on port ${PORT} with config file ./conf/${CONFIG_FILE}"
+
 
 #shellcheck disable=SC2086
 docker run --rm -it \
