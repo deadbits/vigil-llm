@@ -4,6 +4,10 @@ if [ -z "${CONTAINER_ID}" ]; then
     CONTAINER_ID="vigil-llm:latest"
 fi
 
+if [ -z "${PORT}" ]; then
+    PORT="5000"
+    fi
+
 if [ -n "$*" ]; then
     echo "Changing entrypoint to: $*"
     ENTRYPOINT="--entrypoint='$*'"
@@ -22,6 +26,7 @@ CONFIG_FILE="server.conf"
 #shellcheck disable=SC2086
 docker run --rm -it \
     --name vigil-llm \
+    --publish "${PORT}:5000" \
     --env "NLTK_DATA=/data/nltk" \
     --env-file .dockerenv \
     --mount "type=bind,src=./data/nltk,dst=/root/nltk_data" \
