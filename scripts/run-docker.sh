@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ -z "${CONTAINER_ID}" ]; then
+    CONTAINER_ID="vigil-llm:latest"
+fi
+
 if [ -n "$*" ]; then
     echo "Changing entrypoint to: $*"
     ENTRYPOINT="--entrypoint='$*'"
