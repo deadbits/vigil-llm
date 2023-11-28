@@ -32,6 +32,7 @@ echo "Running container ${CONTAINER_ID} on port ${PORT} with config file ./conf/
 docker run --rm -it \
     --name vigil-llm \
     --publish "${PORT}:5000" \
+    --detach \
     --env "NLTK_DATA=/data/nltk" \
     --env-file .dockerenv \
     --mount "type=bind,src=./data/nltk,dst=/root/nltk_data" \
