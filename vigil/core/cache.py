@@ -1,9 +1,10 @@
 from collections import OrderedDict
+from typing import Any
 
 
 class LRUCache:
     def __init__(self, capacity: int):
-        self.cache = OrderedDict()
+        self.cache: OrderedDict = OrderedDict()
         self.capacity = capacity
 
     def get(self, key: str):
@@ -13,7 +14,8 @@ class LRUCache:
             return value
         return None
 
-    def set(self, key: str, value: any):
+    def set(self, key: str, value: Any) -> None:
+        """sets a key-value pair in the cache"""
         if key in self.cache:
             self.cache.pop(key)
         elif len(self.cache) >= self.capacity:

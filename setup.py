@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages  # type: ignore
 
 setup(
     name="vigil-llm",
@@ -11,25 +11,12 @@ setup(
     url="https://github.com/deadbits/vigil-llm",
     packages=find_packages(),
     install_requires=[
-        'openai==1.0.0',
-        'urllib3==1.26.7',
-        'transformers==4.30.0',
-        'pydantic==1.10.7',
-        'Flask==3.0.0',
-        'yara-python==4.3.1',
-        'configparser==5.3.0',
-        'pandas==2.0.0',
-        'pyarrow==14.0.1',
-        'sentence-transformers==2.2.2',
-        'chromadb==0.4.17',
-        'streamlit==1.26.0',
-        'numpy==1.25.2',
-        'loguru==0.7.2',
-        'nltk==3.8.1',
-        'datasets==2.15.0'
+        line
+        for line in open("requirements.txt").read().splitlines()
+        if not line.startswith("#")
     ],
     python_requires=">=3.9",
-    project_urls={ 
+    project_urls={
         "Homepage": "https://vigil.deadbits.ai",
         "Source": "https://github.com/deadbits/vigil-llm",
     },

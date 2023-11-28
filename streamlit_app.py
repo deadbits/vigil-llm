@@ -1,47 +1,43 @@
 # github.com/deadbits/vigil-llm
 import os
 import json
-# import yara
+
 import requests
-import streamlit as st
+import streamlit as st  # type: ignore
 
-from streamlit_extras.badges import badge
-from streamlit_extras.stateful_button import button
+from streamlit_extras.badges import badge  # type: ignore
+from streamlit_extras.stateful_button import button  # type: ignore
 
 
-st.header('Vigil - LLM security scanner')
-st.subheader('Web Playground', divider='rainbow')
+st.header("Vigil - LLM security scanner")
+st.subheader("Web Playground", divider="rainbow")
 
 # Initialize session state for storing history
-if 'history' not in st.session_state:
-    st.session_state['history'] = []
+if "history" not in st.session_state:
+    st.session_state["history"] = []
 
 with st.sidebar:
-    st.header('Vigil - LLM security scanner', divider='rainbow')
-    st.write('[documentation](https://vigil.deadbits.ai) | [github](https://github.com/deadbits/vigil-llm)')
+    st.header("Vigil - LLM security scanner", divider="rainbow")
+    st.write(
+        "[documentation](https://vigil.deadbits.ai) | [github](https://github.com/deadbits/vigil-llm)"
+    )
     badge(type="github", name="deadbits/vigil-llm")
     st.divider()
 
 page = st.sidebar.radio(
-    "Select a page:",
-    [
-        "Prompt Analysis",
-        "Upload YARA Rule",
-        "History",
-        "Settings"
-    ]
+    "Select a page:", ["Prompt Analysis", "Upload YARA Rule", "History", "Settings"]
 )
 
 if page == "Prompt Analysis":
     # Text input for the user to enter the prompt
     prompt = st.text_area("Enter prompt:")
-    
+
     if button("Submit", key="button1"):
         if prompt:
             response = requests.post(
                 "http://localhost:5000/analyze/prompt",
                 headers={"Content-Type": "application/json"},
-                data=json.dumps({"prompt": prompt})
+                data=json.dumps({"prompt": prompt}),
             )
 
             # Check if the response was successful
@@ -49,11 +45,9 @@ if page == "Prompt Analysis":
                 data = response.json()
 
                 # Add to history
-                st.session_state['history'].append({
-                    "timestamp": data["timestamp"],
-                    "prompt": prompt,
-                    "response": data
-                })
+                st.session_state["history"].append(
+                    {"timestamp": data["timestamp"], "prompt": prompt, "response": data}
+                )
 
                 # Display the input prompt
                 st.write("**Prompt:** ", data["prompt"])
@@ -65,7 +59,7 @@ if page == "Prompt Analysis":
                     for message in data["messages"]:
                         # the messages field holds scanners matches so raise them
                         # as a "warning" on the UI
-                        st.warning(message,  icon="⚠️")
+                        st.warning(message, icon="⚠️")
 
                 # Display errors
                 if data["errors"]:
@@ -85,7 +79,7 @@ elif page == "History":
     st.title("History")
     # Sort history by timestamp (newest first)
     sorted_history = sorted(
-        st.session_state['history'], key=lambda x: x['timestamp'], reverse=True
+        st.session_state["history"], key=lambda x: x["timestamp"], reverse=True
     )
 
     for item in sorted_history:

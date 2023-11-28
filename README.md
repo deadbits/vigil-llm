@@ -1,6 +1,7 @@
-![logo](docs/assets/logo.png)
+# ![logo](docs/assets/logo.png)
 
 ## Overview 🏕️
+
 ⚡ Security scanner for LLM prompts ⚡
 
 `Vigil` is a Python library and REST API for assessing Large Language Model prompts and responses against a set of scanners to detect prompt injections, jailbreaks, and other potential threats. This repository also provides the detection signatures and datasets needed to get started with self-hosting.
@@ -17,15 +18,15 @@ This application is currently in an **alpha** state and should be considered exp
 * Scanners are modular and easily extensible
 * Evaluate detections and pipelines with **Vigil-Eval** (coming soon)
 * Available scan modules
-    * [x] Vector database / text similarity
-      * [Auto-updating on detected prompts](https://vigil.deadbits.ai/overview/use-vigil/auto-updating-vector-database)
-    * [x] Heuristics via [YARA](https://virustotal.github.io/yara)
-    * [x] Transformer model
-    * [x] Prompt-response similarity
-    * [x] Canary Tokens
-    * [x] Sentiment analysis 
-    * [ ] Relevance (via [LiteLLM](https://docs.litellm.ai/docs/))
-    * [ ] Paraphrasing
+  * [x] Vector database / text similarity
+    * [Auto-updating on detected prompts](https://vigil.deadbits.ai/overview/use-vigil/auto-updating-vector-database)
+  * [x] Heuristics via [YARA](https://virustotal.github.io/yara)
+  * [x] Transformer model
+  * [x] Prompt-response similarity
+  * [x] Canary Tokens
+  * [x] Sentiment analysis
+  * [ ] Relevance (via [LiteLLM](https://docs.litellm.ai/docs/))
+  * [ ] Paraphrasing
 * Supports [local embeddings](https://www.sbert.net/) and/or [OpenAI](https://platform.openai.com/)
 * Signatures and embeddings for common attacks
 * Custom detections via YARA signatures
@@ -34,16 +35,17 @@ This application is currently in an **alpha** state and should be considered exp
 ## Background 🏗️
 
 > Prompt Injection Vulnerability occurs when an attacker manipulates a large language model (LLM) through crafted inputs, causing the LLM to unknowingly execute the attacker's intentions. This can be done directly by "jailbreaking" the system prompt or indirectly through manipulated external inputs, potentially leading to data exfiltration, social engineering, and other issues.
-- [LLM01 - OWASP Top 10 for LLM Applications v1.0.1 | OWASP.org](https://owasp.org/www-project-top-10-for-large-language-model-applications/assets/PDF/OWASP-Top-10-for-LLMs-2023-v1_0_1.pdf)
 
-These issues are caused by the nature of LLMs themselves, which do not currently separate instructions and data. Although prompt injection attacks are currently unsolvable and there is no defense that will work 100% of the time, by using a layered approach of detecting known techniques you can at least defend against the more common / documented attacks. 
+[LLM01 - OWASP Top 10 for LLM Applications v1.0.1 | OWASP.org](https://owasp.org/www-project-top-10-for-large-language-model-applications/assets/PDF/OWASP-Top-10-for-LLMs-2023-v1_0_1.pdf)
+
+These issues are caused by the nature of LLMs themselves, which do not currently separate instructions and data. Although prompt injection attacks are currently unsolvable and there is no defense that will work 100% of the time, by using a layered approach of detecting known techniques you can at least defend against the more common / documented attacks.
 
 `Vigil`, or a system like it, should not be your only defense - always implement proper security controls and mitigations.
 
 > [!NOTE]
 > Keep in mind, LLMs are not yet widely adopted and integrated with other applications, therefore threat actors have less motivation to find new or novel attack vectors. Stay informed on current attacks and adjust your defenses accordingly!
 
-**Additional Resources**
+### Additional Resources
 
 For more information on prompt injection, I recommend the following resources and following the research being performed by people like [Kai Greshake](https://kai-greshake.de/), [Simon Willison](https://simonwillison.net/search/?q=prompt+injection&tag=promptinjection), and others.
 
@@ -58,31 +60,38 @@ Follow the steps below to install Vigil
 A [Docker container](docs/docker.md) is also available, but this is not currently recommended.
 
 ### Clone Repository
+
 Clone the repository or [grab the latest release](https://github.com/deadbits/vigil-llm/releases)
-```
+
+```shell
 git clone https://github.com/deadbits/vigil-llm.git
 cd vigil-llm
 ```
 
 ### Install YARA
+
 Follow the instructions on the [YARA Getting Started documentation](https://yara.readthedocs.io/en/stable/gettingstarted.html) to download and install [YARA v4.3.2](https://github.com/VirusTotal/yara/releases).
 
 ### Setup Virtual Environment
-```
+
+```shell
 python3 -m venv venv
 source venv/bin/activate
 ```
 
 ### Install Vigil library
+
 Inside your virutal environment, install the application:
-```
+
+```shell
 pip install -e .
 ```
 
 ### Configure Vigil
+
 Open the `conf/server.conf` file in your favorite text editor:
 
-```bash
+```shell
 vim conf/server.conf
 ```
 
@@ -92,6 +101,7 @@ For more information on modifying the `server.conf` file, please review the [Con
 > Your VectorDB scanner embedding model setting must match the model used to generate the embeddings loaded into the database, or similarity search will not work.
 
 ### Load Datasets
+
 Load the appropriate [datasets](https://vigil.deadbits.ai/overview/use-vigil/load-datasets) for your embedding model with the `loader.py` utility. If you don't intend on using the vector db scanner, you can skip this step.
 
 ```bash
@@ -155,9 +165,11 @@ result = app.canary_tokens.check(prompt=llm_response)
 ```
 
 ## Detection Methods 🔍
+
 Submitted prompts are analyzed by the configured `scanners`; each of which can contribute to the final detection.
 
-**Available scanners:**
+### Available scanners
+
 * Vector database
 * YARA / heuristics
 * Transformer model
@@ -167,9 +179,11 @@ Submitted prompts are analyzed by the configured `scanners`; each of which can c
 For more information on how each works, refer to the [detections documentation](docs/detections.md).
 
 ### Canary Tokens
+
 Canary tokens are available through a dedicated class / API.
 
 You can use these in two different detection workflows:
+
 * Prompt leakage
 * Goal hijacking
 
@@ -177,11 +191,12 @@ Refer to the [docs/canarytokens.md](docs/canarytokens.md) file for more informat
 
 ## API Endpoints 🌐
 
-**POST /analyze/prompt**
+### POST /analyze/prompt
 
 Post text data to this endpoint for analysis.
 
 **arguments:**
+
 * **prompt**: str: text prompt to analyze
 
 ```bash
@@ -189,11 +204,12 @@ curl -X POST -H "Content-Type: application/json" \
     -d '{"prompt":"Your prompt here"}' http://localhost:5000/analyze
 ```
 
-**POST /analyze/response**
+### POST /analyze/response
 
 Post text data to this endpoint for analysis.
 
 **arguments:**
+
 * **prompt**: str: text prompt to analyze
 * **response**: str: prompt response to analyze
 
@@ -202,11 +218,12 @@ curl -X POST -H "Content-Type: application/json" \
     -d '{"prompt":"Your prompt here", "response": "foo"}' http://localhost:5000/analyze
 ```
 
-**POST /canary/add**
+### POST /canary/add
 
 Add a canary token to a prompt
 
 **arguments:**
+
 * **prompt**: str: prompt to add canary to
 * **always**: bool: add prefix to always include canary in LLM response (optional)
 * **length**: str: canary token length (optional, default 16)
@@ -221,11 +238,12 @@ curl -X POST "http://127.0.0.1:5000/canary/add" \
       }'
 ```
 
-**POST /canary/check**
+### POST /canary/check
 
 Check if an output contains a canary token
 
 **arguments:**
+
 * **prompt**: str: prompt to check for canary
 
 ```bash
@@ -236,12 +254,13 @@ curl -X POST "http://127.0.0.1:5000/canary/check" \
       }'
 ```
 
-**POST /add/texts**
+### POST /add/texts
 
 Add new texts to the vector database and return doc IDs
 Text will be embedded at index time.
 
 **arguments:**
+
 * **texts**: str: list of texts
 * **metadatas**: str: list of metadatas
 
@@ -257,7 +276,7 @@ curl -X POST "http://127.0.0.1:5000/add/texts" \
      }'
 ```
 
-**GET /settings**
+### GET /settings
 
 View current application settings
 
@@ -268,6 +287,7 @@ curl http://localhost:5000/settings
 ## Sample scan output 📌
 
 **Example scan output:**
+
 ```json
 {
   "status": "success",

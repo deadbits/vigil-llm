@@ -1,0 +1,6 @@
+# only install these if you're doing dev things :)
+types-requests
+mypy
+ruff
+pytest
+types-urllib3

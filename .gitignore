@@ -14,6 +14,7 @@ dist/
 downloads/
 eggs/
 .eggs/
+.ruff_cache/
 lib/
 lib64/
 parts/
@@ -158,3 +159,11 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+
+# nltk models
+data/nltk/*
+data/torch-cache/*
+data/huggingface/*
+.dockerenv
+.DS_Store
+data/vdb/*

@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM python:3.10-slim as builder
 
 # Set the working directory in the container
 WORKDIR /app
@@ -33,13 +33,16 @@ RUN echo "Installing YARA from source ..." \
     && make install \
     && make check
 
+RUN echo "Installing pytorch deps" && \
+    pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+
+FROM builder as vigil
 # Copy vigil into the container
 COPY . .
 
 # Install Python dependencies including PyTorch CPU
 RUN echo "Installing Python dependencies ... " \
-    && pip install --no-cache-dir -r requirements.txt \
-    && pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+    && pip install --no-cache-dir -r requirements.txt
 
 # Expose port 5000 for the API server
 EXPOSE 5000
