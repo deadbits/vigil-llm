@@ -21,11 +21,14 @@ if [ ! -f .dockerenv ]; then
     touch .dockerenv
 fi
 
-if [ -z "${CONFIG_FILE}" ]; then
-    CONFIG_FILE="server.conf"
+if [ -z "${VIGIL_CONFIG}" ]; then
+    VIGIL_CONFIG="server.conf"
+elif [ ! -f "./conf/${VIGIL_CONFIG}" ]; then
+    echo "Config file ./conf/${VIGIL_CONFIG} does not exist"
+    exit 1
 fi
 
-echo "Running container ${CONTAINER_ID} on port ${PORT} with config file ./conf/${CONFIG_FILE}"
+echo "Running container ${CONTAINER_ID} on port ${PORT} with config file ./conf/${VIGIL_CONFIG}"
 
 
 #shellcheck disable=SC2086
@@ -38,7 +41,7 @@ docker run \
     --mount "type=bind,src=./data/torch-cache,dst=/root/.cache/torch/" \
     --mount "type=bind,src=./data/huggingface,dst=/root/.cache/huggingface/" \
     --mount "type=bind,src=./data,dst=/home/vigil/vigil-llm/data" \
-    --mount "type=bind,src=./conf/${CONFIG_FILE},dst=/app/conf/docker.conf" \
+    --mount "type=bind,src=./conf/${VIGIL_CONFIG},dst=/app/conf/docker.conf" \
     --restart always \
     ${ENTRYPOINT} \
     "${CONTAINER_ID}"
