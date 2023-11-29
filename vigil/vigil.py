@@ -92,6 +92,4 @@ class Vigil:
 
     @staticmethod
     def from_config(config_path: Optional[str]) -> "Vigil":
-        res = Vigil(config_path=config_path)
-        logger.debug("Vigil: {}", res)
-        return res
+        return Vigil(config_path=config_path)

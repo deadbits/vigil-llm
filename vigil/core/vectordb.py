@@ -1,4 +1,5 @@
 # https://github.com/deadbits/vigil-llm
+import os
 from typing import List, Optional
 import chromadb  # type: ignore
 from chromadb.config import Settings  # type: ignore
@@ -15,9 +16,8 @@ class VectorDB:
         model: str,
         collection: str,
         db_dir: str,
-        n_results: int = 5,
+        n_results: int,
         openai_key: Optional[str] = None,
-        **kwargs,
     ):
         """Initialize Chroma vector db client"""
 
@@ -25,20 +25,37 @@ class VectorDB:
 
         if model == "openai":
             logger.info("Using OpenAI embedding function")
+            if openai_key is None:
+                logger.debug("Using OPENAI_API_KEY environment variable for API Key")
+                openai_key = os.getenv("OPENAI_API_KEY")
+                if openai_key is None or openai_key.strip() == "":
+                    logger.error("OPENAI_API_KEY environment variable is not set")
+                    raise ValueError("OPENAI_API_KEY environment variable is not set")
+            else:
+                logger.debug(
+                    "Using OpenAI API Key from config file: {}...", openai_key[:3]
+                )
             self.embed_fn = embedding_functions.OpenAIEmbeddingFunction(
                 api_key=openai_key, model_name="text-embedding-ada-002"
             )
-        else:
+        elif model is not None:
             # logger.info(
             # f'Using SentenceTransformer embedding function: {model}'
             # )
             self.embed_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
                 model_name=model
             )
+        else:
+            raise ValueError(
+                "vectordb.model is not set in config file, needs to be 'openai' or a SentenceTransformer model name"
+            )
 
         self.collection = collection
         self.db_dir = db_dir
-        self.n_results = int(n_results)
+        if n_results is not None:
+            self.n_results = int(n_results)
+        else:
+            self.n_results = 5
 
         if not hasattr(self.embed_fn, "__call__"):
             logger.error("Embedding function is not callable")
@@ -64,6 +81,10 @@ class VectorDB:
         success = False
 
         logger.info(f"Adding {len(texts)} texts")
+        for metadata in metadatas:
+            for key, value in metadata.items():
+                if not isinstance(value, str):
+                    metadata[key] = str(value)
         ids = [uuid4_str() for _ in range(len(texts))]
 
         try:
@@ -104,12 +125,20 @@ def setup_vectordb(conf: Config) -> VectorDB:
     full_config = conf.get_general_config()
     params = full_config.get("vectordb", {})
     params.update(full_config.get("embedding", {}))
-    params.update(full_config.get("scanner:vectordb", {}))
+    for key in ["collection", "db_dir", "n_results"]:
+        if key not in params:
+            raise ValueError(f"config needs key {key}")
+    return VectorDB(**params)
 
-    return VectorDB(
-        model=params["model"],
-        collection=params.get("collection"),
-        db_dir=params.get("db_dir"),
-        n_results=params.get("n_results"),
-        openai_key=params.get("openai_key"),
-    )
+
+# def setup_vectordb(conf: Config) -> VectorDB:
+#     full_config = conf.get_general_config()
+#     params = full_config.get("vectordb", {})
+
+#     return VectorDB(
+#         model=params.get("model"),
+#         collection=params.get("collection"),
+#         db_dir=params.get("db_dir"),
+#         n_results=params.get("n_results"),
+#         openai_key=params.get("openai_key"),
+#     )

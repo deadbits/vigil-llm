@@ -9,10 +9,10 @@ if [ -z "${PORT}" ]; then
     fi
 
 if [ -n "$*" ]; then
-    echo "Changing entrypoint to: $*"
-    ENTRYPOINT="--entrypoint='$*'"
+    echo "Changing entrypoint to: '$*'"
+    ENTRYPOINT="-it --entrypoint=$*"
 else
-    ENTRYPOINT=""
+    ENTRYPOINT="--detach"
 fi
 
 
@@ -32,15 +32,14 @@ echo "Running container ${CONTAINER_ID} on port ${PORT} with config file ./conf/
 docker run \
     --name vigil-llm \
     --publish "${PORT}:5000" \
-    --detach \
     --env "NLTK_DATA=/data/nltk" \
     --env-file .dockerenv \
     --mount "type=bind,src=./data/nltk,dst=/root/nltk_data" \
-    --mount "type=bind,src=./conf/${CONFIG_FILE},dst=/app/conf/server.conf" \
     --mount "type=bind,src=./data/torch-cache,dst=/root/.cache/torch/" \
     --mount "type=bind,src=./data/huggingface,dst=/root/.cache/huggingface/" \
     --mount "type=bind,src=./data,dst=/home/vigil/vigil-llm/data" \
-    --mount "type=bind,src=./,dst=/app" \
+    --mount "type=bind,src=./conf/${CONFIG_FILE},dst=/app/conf/docker.conf" \
     --restart always \
     ${ENTRYPOINT} \
     "${CONTAINER_ID}"
+    # --mount "type=bind,src=./,dst=/app" \ # <=- include this line if you want to work on it and mount the app in docker

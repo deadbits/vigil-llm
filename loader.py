@@ -20,9 +20,7 @@ if __name__ == "__main__":
         "-D", "--datasets", help="Specify multiple repos", type=str, required=False
     )
 
-    parser.add_argument(
-        "-c", "--config", help="config file", type=Optional[str], required=False
-    )
+    parser.add_argument("-c", "--config", help="config file", type=str, required=False)
 
     args = parser.parse_args()
 

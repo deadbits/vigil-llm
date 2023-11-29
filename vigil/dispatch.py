@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 import math
 import uuid
 
@@ -47,7 +47,7 @@ class Manager:
                     f"{self.name} Auto-update vectordb enabled: threshold={self.update_threshold}"
                 )
 
-    def perform_scan(self, prompt: str, prompt_response: str) -> dict:
+    def perform_scan(self, prompt: str, prompt_response: Optional[str] = None) -> dict:
         resp = ResponseModel(
             status=StatusEmum.SUCCESS,
             prompt=prompt,
@@ -120,9 +120,11 @@ class Scanner:
         response = {}
 
         for scanner in self.scanners:
+            if prompt_response is not None and prompt_response.strip() == "":
+                prompt_response = None
             scan_obj = ScanModel(
                 prompt=prompt,
-                prompt_response=(prompt_response if prompt_response.strip() else None),
+                prompt_response=prompt_response,
             )
 
             try:

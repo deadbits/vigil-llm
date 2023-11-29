@@ -23,7 +23,7 @@ class Embedder:
 
         if model == "openai":
             logger.info("Using OpenAI")
-            if openai_key is None:
+            if openai_key is None or openai_key.strip() == "":
                 # try and get it from the environment
                 openai_key = os.environ.get("OPENAI_API_KEY", None)
                 if openai_key is None:
