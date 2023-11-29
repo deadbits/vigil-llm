@@ -30,6 +30,10 @@ class Embedder:
                     msg = "No OpenAI API key passed to embedder, needs to be in configuration or OPENAI_API_KEY env variable."
                     logger.error(msg)
                     raise ValueError(msg)
+            else:
+                logger.debug(
+                    "Using OpenAI API Key from config file: '{}...'", openai_key[:3]
+                )
 
             self.client = OpenAI(api_key=openai_key)
             try:

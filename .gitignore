@@ -167,3 +167,4 @@ data/huggingface/*
 .dockerenv
 .DS_Store
 data/vdb/*
+conf/*.conf
