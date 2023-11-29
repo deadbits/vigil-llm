@@ -42,10 +42,12 @@ COPY . .
 
 # Install Python dependencies including PyTorch CPU
 RUN echo "Installing Python dependencies ... " \
-    && pip install --no-cache-dir -r requirements.txt
-
+    && pip install --no-cache-dir -r requirements.txt \
+    && pip install --no-cache-dir -r requirements-dev.txt \
+    && pip install .
 # Expose port 5000 for the API server
 EXPOSE 5000
+ENV VIGIL_CONFIG="/app/conf/docker.conf"
 
 COPY scripts/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

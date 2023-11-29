@@ -1,10 +1,12 @@
+import os
 import pytest
 from vigil.vigil import Vigil
 
 
 @pytest.fixture
 def app() -> Vigil:
-    return Vigil.from_config("conf/openai.conf")
+    os.environ["OPENAI_API_KEY"] = "hello world"
+    return Vigil.from_config(os.getenv("VIGIL_CONFIG", "conf/docker-test.conf"))
 
 
 def test_input_scanner(app: Vigil):

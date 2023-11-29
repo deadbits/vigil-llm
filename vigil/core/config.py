@@ -1,13 +1,23 @@
 import configparser
 import os
+import sys
 from typing import Optional, List
 
 from loguru import logger  # type: ignore
 
 
 class Config:
-    def __init__(self, config_file: str):
+    def __init__(self, config_file: Optional[str]):
+        if config_file is None:
+            if "VIGIL_CONFIG" in os.environ:
+                config_file = os.environ["VIGIL_CONFIG"]
+            else:
+                logger.error(
+                    "No config file specified on the command line or VIGIL_CONFIG env var, quitting!"
+                )
+                sys.exit(1)
         self.config_file = config_file
+        logger.debug("Using config file: {}", config_file)
         self.config = configparser.ConfigParser()
         if not os.path.exists(self.config_file):
             logger.error(f"Config file not found: {self.config_file}")

@@ -15,7 +15,7 @@ class VectorDB:
         model: str,
         collection: str,
         db_dir: str,
-        n_results: int,
+        n_results: int = 5,
         openai_key: Optional[str] = None,
         **kwargs,
     ):
@@ -30,7 +30,7 @@ class VectorDB:
             )
         else:
             # logger.info(
-            # f'Using SentenceTransformer embedding function: {config_dict["embed_fn"]}'
+            # f'Using SentenceTransformer embedding function: {model}'
             # )
             self.embed_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
                 model_name=model

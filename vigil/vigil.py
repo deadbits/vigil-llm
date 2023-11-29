@@ -91,17 +91,7 @@ class Vigil:
         )
 
     @staticmethod
-    def from_config(config_path: str) -> "Vigil":
-        return Vigil(config_path=config_path)
-
-
-# def setup_vectordb(
-#     scanner_conf: dict[str, Any], embedding_conf: dict[str, str]
-# ) -> VectorDB:
-#     return VectorDB(
-#         model=embedding_conf["model"],
-#         collection=scanner_conf["collection"],
-#         n_results=scanner_conf["n_results"],
-#         db_dir=scanner_conf["db_dir"],
-#         openai_key=embedding_conf.get("openai_key", os.getenv("OPENAI_API_KEY")),
-#     )
+    def from_config(config_path: Optional[str]) -> "Vigil":
+        res = Vigil(config_path=config_path)
+        logger.debug("Vigil: {}", res)
+        return res
