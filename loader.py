@@ -1,7 +1,5 @@
 import argparse
-import os
 import sys
-from typing import Optional
 from loguru import logger  # type: ignore
 
 from vigil.core.config import Config

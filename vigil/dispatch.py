@@ -116,7 +116,9 @@ class Scanner:
         self.name = "dispatch:scan"
         self.scanners = scanners
 
-    def run(self, prompt: str, scan_id: uuid.UUID, prompt_response: str) -> Dict:
+    def run(
+        self, prompt: str, scan_id: uuid.UUID, prompt_response: Optional[str]
+    ) -> Dict:
         response = {}
 
         for scanner in self.scanners:
