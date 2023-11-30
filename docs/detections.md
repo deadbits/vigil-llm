@@ -14,7 +14,7 @@ The `vectordb` scanner uses a [vector database](https://github.com/chroma-core/c
 All embeddings are available on HuggingFace and listed in the `Datasets` section of this document. 
 
 ### Heuristics
-The `yara` scanner and the accompanying [rules](data/yara/) act as heuristics detection. Submitted prompts are scanned against the rulesets with matches raised as potential prompt injection.
+The `yara` scanner and the accompanying [rules](../data/yara/) act as heuristics detection. Submitted prompts are scanned against the rulesets with matches raised as potential prompt injection.
 
 Custom rules can be used by adding them to the `data/yara` directory.
 
