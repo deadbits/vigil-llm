@@ -1,8 +1,9 @@
+from typing import Union
 import uuid
 
 from loguru import logger  # type: ignore
 
-from vigil.schema import BaseScanner
+from vigil.schema import BaseScanner, ResponseModel
 from vigil.schema import ScanModel
 from vigil.schema import VectorMatch
 from vigil.core.vectordb import VectorDB
@@ -22,11 +23,13 @@ class VectorScanner(BaseScanner):
     ) -> ScanModel:
         logger.info(f'Performing scan; id="{scan_id}"')
 
-        try:
-            matches = self.db_client.query(scan_obj.prompt)
-        except Exception as err:
-            logger.error(f'Failed to perform vector scan; id="{scan_id}" error="{err}"')
-            return scan_obj
+        # try:
+        matches = self.db_client.query(scan_obj.prompt)
+        # except Exception as err:
+        # logger.error(f'Failed to perform vector scan; id="{scan_id}" error="{err}"')
+        # return ResponseModel(
+        # errors=[f"Failed to perform vector scan: {err}"],
+        # )
 
         existing_texts = []
 

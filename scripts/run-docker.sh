@@ -31,7 +31,7 @@ elif [ ! -f "./conf/${VIGIL_CONFIG}" ]; then
 fi
 
 # mount the local dir if we're in dev mode
-if [ -n "${c}" ]; then
+if [ -n "${DEV_MODE}" ]; then
     echo "Running in dev mode"
     DEVMODE='--mount type=bind,src=./,dst=/app'
 else

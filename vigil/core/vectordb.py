@@ -113,12 +113,9 @@ class VectorDB:
 
         return (success, ids)
 
-    def query(self, text: str):
+    def query(self, text: str) -> chromadb.QueryResult:
         logger.info(f"Querying database for: {text}")
-        try:
-            return self.collection.query(query_texts=[text], n_results=self.n_results)
-        except Exception as err:
-            logger.error(f"Failed to query database: {err}")
+        return self.collection.query(query_texts=[text], n_results=self.n_results)
 
 
 def setup_vectordb(conf: Config) -> VectorDB:
