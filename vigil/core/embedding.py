@@ -32,7 +32,9 @@ class Embedder:
                     raise ValueError(msg)
             else:
                 logger.debug(
-                    "Using OpenAI API Key from config file: '{}...'", openai_key[:3]
+                    "Using OpenAI API Key from config file: '{}...{}'",
+                    openai_key[:3],
+                    openai_key[-3],
                 )
 
             self.client = OpenAI(api_key=openai_key)

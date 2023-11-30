@@ -33,7 +33,9 @@ class VectorDB:
                     raise ValueError("OPENAI_API_KEY environment variable is not set")
             else:
                 logger.debug(
-                    "Using OpenAI API Key from config file:  '{}...'", openai_key[:3]
+                    "Using OpenAI API Key from config file: '{}...{}'",
+                    openai_key[:3],
+                    openai_key[-3],
                 )
             self.embed_fn = embedding_functions.OpenAIEmbeddingFunction(
                 api_key=openai_key, model_name="text-embedding-ada-002"
