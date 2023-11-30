@@ -1,14 +1,14 @@
 #!/bin/bash
 
 if [ -z "${CONTAINER_ID}" ]; then
-    CONTAINER_ID="vigil-llm:latest"
+    CONTAINER_ID="vigil:latest"
 fi
 
 if [ -z "${PORT}" ]; then
     PORT="5000"
     fi
 
-# if you've passed a command in then it'll run it
+# if you've passed a command in then it'll run that instead of the default
 if [ -n "$*" ]; then
     echo "Changing entrypoint to: '$*'"
     ENTRYPOINT="-it --entrypoint=$*"
@@ -31,7 +31,7 @@ elif [ ! -f "./conf/${VIGIL_CONFIG}" ]; then
 fi
 
 # mount the local dir if we're in dev mode
-if [ -n "${DEV_MODE}" ]; then
+if [ -n "${c}" ]; then
     echo "Running in dev mode"
     DEVMODE='--mount type=bind,src=./,dst=/app'
 else
@@ -43,7 +43,7 @@ echo "Running container ${CONTAINER_ID} on port ${PORT} with config file ./conf/
 
 #shellcheck disable=SC2086
 docker run \
-    --name vigil-llm \
+    --name vigil \
     --publish "${PORT}:5000" \
     --env "NLTK_DATA=/data/nltk" \
     --env-file .dockerenv \
@@ -57,8 +57,3 @@ docker run \
     ${DEVMODE} \
     ${ENTRYPOINT} \
     "${CONTAINER_ID}"
-    # --restart always \
-
-    # include this line if you want to work on it and mount the app in docker
-    # it needs to be above the config line
-    #  \

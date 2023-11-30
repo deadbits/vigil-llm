@@ -2,4 +2,4 @@
 
 set -e
 
-docker build -t vigil-llm .
+docker build -t vigil .

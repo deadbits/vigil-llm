@@ -1,4 +1,5 @@
 # https://github.com/deadbits/vigil-llm
+import os
 import time
 import argparse
 from typing import Any
@@ -161,9 +162,11 @@ def analyze_prompt() -> Any:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-c", "--config", help="config file", type=str, required=True)
+    parser.add_argument("-c", "--config", help="config file", type=str, required=False)
 
     args = parser.parse_args()
+    if not args.config:
+        args.config = os.getenv("VIGIL_CONFIG")
 
     vigil = Vigil.from_config(args.config)
 

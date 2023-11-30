@@ -17,6 +17,7 @@ update_threshold = 3
 This configuration would require three different scanners to match against a submitted prompt before that prompt is indexed back in the database. 
 
 The following metadata is stored alongside the detected prompt:
+
 ```json
 {
      "uuid": scan uuid,

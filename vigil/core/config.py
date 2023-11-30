@@ -26,6 +26,20 @@ class Config:
         logger.info(f"Loading config file: {self.config_file}")
         self.config.read(config_file)
 
+        # if you're using an OpenAI embedding then we need the OpenAI API key, fall back to the OPENAI_API_KEY environment variable
+        if self.config.has_section("embedding"):
+            if self.config.get("embedding", "model") == "openai":
+                openai_key = self.config.get("embedding", "openai_key")
+                if openai_key is None or openai_key.strip() == "":
+                    if os.getenv("OPENAI_API_KEY") is None:
+                        raise ValueError(
+                            "Embedding model set to openai but no key found, set it in config or OPENAI_API_KEY environment variable."
+                        )
+                    logger.debug("Using OPENAI_API_KEY environment variable for key")
+                    self.config.set(
+                        "embedding", "openai_key", os.getenv("OPENAI_API_KEY")
+                    )
+
     def get_val(self, section: str, key: str) -> Optional[str]:
         answer = None
 

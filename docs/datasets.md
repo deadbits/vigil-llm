@@ -29,6 +29,7 @@ Before you run the command below, make sure you've updated the `conf/server.conf
   * Example: `vigil-jailbreak-all-MiniLM-L6-v2` dataset requires `model = all-MiniLM-L6-v2`
   * Example: `vigil-jailbreak-ada-002` requires ``model = openai` and setting `embedding.openai_api_key`
 
-```cd vigil/utils
+```shell
+cd vigil/utils
 python -m parquet2vdb --config server.conf -d /path/to/<hf repo>
 ```

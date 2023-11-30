@@ -164,7 +164,11 @@ cython_debug/
 data/nltk/*
 data/torch-cache/*
 data/huggingface/*
-.dockerenv
-.DS_Store
 data/vdb/*
+
+#config files
+.dockerenv
 conf/*.conf
+
+# macOS
+.DS_Store
