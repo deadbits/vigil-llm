@@ -19,8 +19,8 @@ class Vigil:
 
     def __init__(self, config_path: str):
         self._config = Config(config_path)
-        self._initialize_vectordb()
         self._initialize_embedder()
+        self._initialize_vectordb()
 
         self._input_scanners: List[BaseScanner] = self._setup_scanners(
             self._config.get_scanner_names("input_scanners")
@@ -91,5 +91,5 @@ class Vigil:
         )
 
     @staticmethod
-    def from_config(config_path: Optional[str]) -> "Vigil":
+    def from_config(config_path: str) -> "Vigil":
         return Vigil(config_path=config_path)
