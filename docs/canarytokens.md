@@ -1,4 +1,4 @@
-## Canary tokens
+# Canary tokens
 
 The canary tokens functionality is available as:
 
