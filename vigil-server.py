@@ -1,12 +1,14 @@
 # https://github.com/deadbits/vigil-llm
+import json
 import os
 import time
 import argparse
-from typing import Any
+from typing import Any, Dict, List
 
 from loguru import logger  # type: ignore
 
-from flask import Flask, request, jsonify, abort  # type: ignore
+from flask import Flask, Response, request, jsonify, abort
+from pydantic import BaseModel, Field
 
 from vigil.core.cache import LRUCache
 from vigil.common import timestamp_str
@@ -18,20 +20,23 @@ logger.add("logs/server.log", format="{time} {level} {message}", level="INFO")
 app = Flask(__name__)
 
 
-def check_field(data, field_name: str, field_type: type, required: bool = True) -> Any:
+def check_field(
+    data: Any, field_name: str, field_type: type, required: bool = True
+) -> Any:
+    """validate field input/type, takes the input from the request.json dict"""
     field_data = data.get(field_name, None)
 
     if field_data is None:
         if required:
             logger.error(f'Missing "{field_name}" field')
-            return abort(400, f'Missing "{field_name}" field')
+            abort(400, f'Missing "{field_name}" field')
         return ""
 
     if not isinstance(field_data, field_type):
         logger.error(
             f'Invalid data type; "{field_name}" value must be a {field_type.__name__}'
         )
-        return abort(
+        abort(
             400,
             f'Invalid data type; "{field_name}" value must be a {field_type.__name__}',
         )
@@ -40,36 +45,55 @@ def check_field(data, field_name: str, field_type: type, required: bool = True) 
 
 
 @app.route("/settings", methods=["GET"])
-def show_settings():
+def show_settings() -> Response:
     """Return the current configuration settings, but drop the OpenAI API key if it's there"""
-    logger.info(f"({request.path}) Returning config dictionary")
+    logger.info("({}) Returning config dictionary", request.path)
     config_dict = {}
     for key, value in vigil._config.get_general_config().items():
         config_dict[key] = value
 
+    # don't return the OpenAI API key
     if "embedding" in config_dict:
         config_dict["embedding"].pop("openai_api_key", None)
 
     return jsonify(config_dict)
 
 
-@app.route("/canary/add", methods=["POST"])
-def add_canary():
-    """Add a canary token to the prompt"""
-    logger.info(f"({request.path}) Adding canary token to prompt")
+@app.route("/canary/list", methods=["GET"])
+def list_canaries() -> Response:
+    """Return the current canary tokens"""
+    logger.info("({}) Returning canary tokens", request.path)
+    return jsonify(vigil.canary_tokens.tokens)
 
-    prompt = check_field(request.json, "prompt", str)
-    always = check_field(request.json, "always", bool, required=False)
-    length = check_field(request.json, "length", int, required=False)
-    header = check_field(request.json, "header", str, required=False)
+
+class CanaryTokenRequest(BaseModel):
+    """validate canary token request"""
+
+    prompt: str
+    always: bool = Field(False)
+    length: int = Field(16)
+    header: str = Field("<-@!-- {canary} --@!->")
+
+
+@app.route("/canary/add", methods=["POST"])
+def add_canary() -> Response:
+    """Add a canary token to the system"""
+    try:
+        if request.json is None:
+            abort(400, "No JSON data in request")
+        canary = CanaryTokenRequest(**request.json)
+    except ValueError as ve:
+        logger.error("Failed to validate add_canary request: {}", ve)
+        abort(400, f"Failed to validate request: {ve}")
+    logger.info("({}) Adding canary token to prompt", request.path)
 
     updated_prompt = vigil.canary_tokens.add(
-        prompt=prompt,
-        always=always if always else False,
-        length=length if length else 16,
-        header=header if header else "<-@!-- {canary} --@!->",
+        prompt=canary.prompt,
+        always=canary.always,
+        length=canary.length,
+        header=canary.header,
     )
-    logger.info(f"({request.path}) Returning response")
+    logger.info("({}) Returning response", request.path)
 
     return jsonify(
         {"success": True, "timestamp": timestamp_str(), "result": updated_prompt}
@@ -79,7 +103,7 @@ def add_canary():
 @app.route("/canary/check", methods=["POST"])
 def check_canary():
     """Check if the prompt contains a canary token"""
-    logger.info(f"({request.path}) Checking prompt for canary token")
+    logger.info("({}) Checking prompt for canary token", request.path)
 
     prompt = check_field(request.json, "prompt", str)
 
@@ -89,7 +113,7 @@ def check_canary():
     else:
         message = "No canary token found in prompt"
 
-    logger.info(f"({request.path}) Returning response")
+    logger.info("({}) Returning response", request.path)
 
     return jsonify(
         {
@@ -101,37 +125,67 @@ def check_canary():
     )
 
 
+class TextRequest(BaseModel):
+    """used with /add/texts"""
+
+    texts: List[str]
+    metadatas: List[Dict[str, str]]
+
+
 @app.route("/add/texts", methods=["POST"])
-def add_texts():
+def add_texts() -> Response:
     """Add text to the vector database (embedded at index)"""
-    texts = check_field(request.json, "texts", list)
-    metadatas = check_field(request.json, "metadatas", list)
+    try:
+        if request.json is None:
+            abort(400, "No JSON data in request")
+        text_request = TextRequest(**request.json)
+    except ValueError as ve:
+        logger.error("({}) Failed to validate add_texts request: {}", request.path, ve)
+        abort(400, f"Failed to validate request: {ve}")
 
-    logger.info(f"({request.path}) Adding text to VectorDB")
+    logger.info("({}) Adding text to VectorDB", request.path)
 
-    res, ids = vigil.vectordb.add_texts(texts, metadatas)
+    if vigil.vectordb is None:
+        abort(500, "No VectorDB loaded")
+    res, ids = vigil.vectordb.add_texts(text_request.texts, text_request.metadatas)
     if res is False:
-        logger.error(f"({request.path}) Error adding text to VectorDB")
+        logger.error("({}) Error adding text to VectorDB", request.path)
         return abort(500, "Error adding text to VectorDB")
 
-    logger.info(f"({request.path}) Returning response")
+    logger.info("({}) Returning response", request.path)
 
     return jsonify({"success": True, "timestamp": timestamp_str(), "ids": ids})
+
+
+class AnalyzeRequest(BaseModel):
+    """used with /analyze/response"""
+
+    prompt: str
+    response: str
 
 
 @app.route("/analyze/response", methods=["POST"])
 def analyze_response():
     """Analyze a prompt and its response"""
-    logger.info(f"({request.path}) Received scan request")
+    logger.info("({}) Received scan request", request.path)
 
-    input_prompt = check_field(request.json, "prompt", str)
-    out_data = check_field(request.json, "response", str)
+    # input_prompt = check_field(request.json, "prompt", str)
+    # out_data = check_field(request.json, "response", str)
+    try:
+        analyze_request = AnalyzeRequest(**request.json)
+    except ValueError as ve:
+        logger.error(
+            "({}) Failed to validate analyze_response request: {}", request.path, ve
+        )
+        abort(400, f"Failed to validate request: {ve}")
 
     start_time = time.time()
-    result = vigil.output_scanner.perform_scan(input_prompt, out_data)
+    result = vigil.output_scanner.perform_scan(
+        analyze_request.prompt, analyze_request.response
+    )
     result["elapsed"] = round((time.time() - start_time), 6)
 
-    logger.info(f"({request.path}) Returning response")
+    logger.info("({}) Returning response: {}", request.path, json.dumps(result))
 
     return jsonify(result)
 
@@ -139,13 +193,13 @@ def analyze_response():
 @app.route("/analyze/prompt", methods=["POST"])
 def analyze_prompt() -> Any:
     """Analyze a prompt against a set of scanners"""
-    logger.info(f"({request.path}) Received scan request")
+    logger.info("({}) Received scan request", request.path)
 
     input_prompt = check_field(request.json, "prompt", str)
     cached_response = lru_cache.get(input_prompt)
 
     if cached_response:
-        logger.info(f"({request.path}) Found response in cache!")
+        logger.info("({}) Found response in cache!", request.path)
         cached_response["cached"] = True
         return jsonify(cached_response)
 
@@ -153,7 +207,7 @@ def analyze_prompt() -> Any:
     result = vigil.input_scanner.perform_scan(input_prompt, prompt_response="")
     result["elapsed"] = round((time.time() - start_time), 6)
 
-    logger.info(f"({request.path}) Returning response")
+    logger.info("({}) Returning response", request.path)
     lru_cache.set(input_prompt, result)
 
     return jsonify(result)
@@ -171,5 +225,4 @@ if __name__ == "__main__":
     vigil = Vigil.from_config(args.config)
 
     lru_cache = LRUCache(capacity=100)
-
     app.run(host="0.0.0.0", use_reloader=True)
