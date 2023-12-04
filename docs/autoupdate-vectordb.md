@@ -9,6 +9,8 @@ This is disabled by default but can be configured in the **embedding** section o
 
 ### Example configuration
 
+<!-- TODO: this doesn't match what's in the code... is currently has its own config section? -->
+
 ```ini
 [embedding]
 auto_update = true

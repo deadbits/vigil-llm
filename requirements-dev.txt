@@ -1,7 +1,7 @@
 # only install these if you're doing dev things :)
-types-requests
 mypy
-ruff
 pytest
+ruff
+types-requests
 types-urllib3
 virtualenv

@@ -1,11 +1,14 @@
+""" this runs queries against the container """
 import json
+import os
 import sys
 import time
 from loguru import logger
 import requests
 
+port = os.getenv("PORT", 5000)
 
-endpoint = "http://localhost:8000"
+endpoint = f"http://localhost:{port}"
 
 attempts = 0
 while attempts < 10:

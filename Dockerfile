@@ -1,4 +1,5 @@
 FROM python:3.10-slim as builder
+# this is  broken up into two stages because when you're rebuilding it you don't want to have to rebuild the whole thing
 
 # Set the working directory in the container
 WORKDIR /app

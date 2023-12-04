@@ -6,7 +6,7 @@ fi
 
 if [ -z "${PORT}" ]; then
     PORT="5000"
-    fi
+fi
 
 # if you've passed a command in then it'll run that instead of the default
 if [ -n "$*" ]; then
@@ -15,7 +15,6 @@ if [ -n "$*" ]; then
 else
     ENTRYPOINT="--detach"
 fi
-
 
 if [ ! -f .dockerenv ]; then
     echo "Creating empty .dockerenv"

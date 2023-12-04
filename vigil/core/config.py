@@ -42,12 +42,12 @@ class VectorDBConfig(BaseModel):
     collection: str = Field("data-openai")
     db_dir: Optional[str]
     model: Optional[str] = Field(None)
+    # When `n` number of scanners match on a prompt (excluding the sentiment scanner), that prompt will be indexed in the database.
     n_results: int = Field(5)
 
 
 class AutoUpdateConfig(BaseModel):
     enabled: bool = Field(True)
-    # days?
     threshold: int = Field(3)
 
 

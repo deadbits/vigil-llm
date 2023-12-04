@@ -172,3 +172,4 @@ conf/*.conf
 
 # macOS
 .DS_Store
+.envrc

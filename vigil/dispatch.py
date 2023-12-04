@@ -41,10 +41,12 @@ class Manager:
 
         if self.auto_update:
             if self.db_client is None:
-                logger.warning(f"{self.name} Auto-update disabled: db client is None")
+                logger.warning("{} Auto-update disabled: db client is None", self.name)
             else:
                 logger.info(
-                    f"{self.name} Auto-update vectordb enabled: threshold={self.update_threshold}"
+                    "{} Auto-update vectordb enabled: threshold={}",
+                    self.name,
+                    self.update_threshold,
                 )
 
     def perform_scan(self, prompt: str, prompt_response: Optional[str] = None) -> dict:
@@ -58,10 +60,10 @@ class Manager:
         if not prompt:
             resp.errors.append("Input prompt value is empty")
             resp.status = StatusEmum.FAILED
-            logger.error(f"{self.name} Input prompt value is empty")
+            logger.error("{} Input prompt value is empty", self.name)
             return resp.model_dump()
 
-        logger.info(f"{self.name} Dispatching scan request id={resp.uuid}")
+        logger.info("{} Dispatching scan request id={}", self.name, resp.uuid)
 
         scan_results = self.dispatcher.run(
             prompt=prompt, prompt_response=prompt_response, scan_id=resp.uuid
@@ -86,10 +88,12 @@ class Manager:
             ):
                 resp.messages.append(message)
 
-        logger.info(f"{self.name} Total scanner matches: {total_matches}")
+        logger.info("{} Total scanner matches: {}", self.name, total_matches)
         if self.auto_update and (total_matches >= self.update_threshold):
             logger.info(
-                f"{self.name} (auto-update) Adding detected prompt to db id={resp.uuid}"
+                "{} (auto-update) Adding detected prompt to db id={}",
+                self.name,
+                resp.uuid,
             )
             doc_id = self.db_client.add_texts(
                 [prompt],
@@ -103,10 +107,13 @@ class Manager:
                 ],
             )
             logger.success(
-                f"{self.name} (auto-update) Successful doc_id={doc_id} id={resp.uuid}"
+                "{} (auto-update) Successful doc_id={} id={resp.uuid}",
+                self.name,
+                doc_id,
+                resp.uuid,
             )
 
-        logger.info(f"{self.name} Returning response object id={resp.uuid}")
+        logger.info("{} Returning response object id={}"), self.name, resp.uuid
 
         return resp.model_dump()
 
@@ -130,15 +137,20 @@ class Scanner:
             )
 
             try:
-                logger.info(f"Running scanner: {scanner.name}; id={scan_id}")
+                logger.info("Running scanner: {}; id={}", scanner.name, scan_id)
 
                 updated = scanner.analyze(scan_obj, scan_id)
                 response[scanner.name] = [dict(res) for res in updated.results]
-                logger.success(f"Successfully ran scanner: {scanner.name} id={scan_id}")
+                logger.success(
+                    "Successfully ran scanner: {} id={}", scanner.name, scan_id
+                )
 
             except Exception as err:
                 logger.error(
-                    f"Failed to run scanner: {scanner.name}, Error: {str(err)} id={scan_id}"
+                    "Failed to run scanner: {}, Error: {} id={}",
+                    scanner.name,
+                    err,
+                    scan_id,
                 )
                 response[scanner.name] = [{"error": str(err)}]
 

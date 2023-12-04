@@ -28,7 +28,7 @@ The API server will be available on 0.0.0.0:5000.
 The `run-docker.sh` script will take the following environment variables:
 
 - PORT - change the port that's exposed (macOS binds port 5000 by default).
-- CONTAINER_ID - if you want to use another container.
+- CONTAINER_ID - if you want to use another container (ie, one in Docker Hub).
 - DEV_MODE - set if you're working on the vigil code, it'll mount `./` as `/app` in the container.
 - VIGIL_CONFIG - use a different configuration file from `./conf/`
 
