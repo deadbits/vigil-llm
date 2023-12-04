@@ -50,7 +50,7 @@ class SentimentScanner(BaseScanner):
                     negative=scores["neg"],
                     neutral=scores["neu"],
                     positive=scores["pos"],
-                )
+                ).model_dump()
             )
         except Exception as err:
             logger.error(f'Analyzer error: {err} id="{scan_id}"')

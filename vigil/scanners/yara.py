@@ -82,7 +82,7 @@ class YaraScanner(BaseScanner):
             logger.warning(
                 f'Matched rule rule="{m.rule_name} tags="{m.tags}" category="{m.category}"'
             )
-            scan_obj.results.append(m)
+            scan_obj.results.append(m.model_dump())
 
         if len(scan_obj.results) == 0:
             logger.info(f'No matches found; id="{scan_id}"')

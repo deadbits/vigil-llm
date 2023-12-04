@@ -1,13 +1,8 @@
-# import logging
+from typing import Optional
 import litellm  # type: ignore
+from loguru import logger
 
-from loguru import logger  # type: ignore
-
-from typing import Optional, Union, Dict, Any
-
-
-# logging.basicConfig(level=logging.INFO)
-# logger = logging.getLogger(__name__)
+from vigil.schema import ScanModel  # type: ignore
 
 
 class LLM:
@@ -33,12 +28,12 @@ class LLM:
         logger.info("Loaded LLM API.")
 
     def generate(
-        self, prompt: str, content_only: Optional[bool] = False
-    ) -> Union[str, Dict[str, Any]]:
+        self, prompt: ScanModel, content_only: Optional[bool] = False
+    ) -> ScanModel:
         """Call configured LLM model with litellm"""
         logger.info(f"Calling model: {self.model_name}")
 
-        messages = [{"content": prompt, "role": "user"}]
+        messages = [{"content": prompt.prompt, "role": "user"}]
 
         try:
             output = litellm.completion(

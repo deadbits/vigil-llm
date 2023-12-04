@@ -1,11 +1,12 @@
+from pathlib import Path
 from loguru import logger  # type: ignore
 
-from typing import List, Optional, Callable
+from typing import List, Optional
 
 from vigil.dispatch import Manager
 from vigil.schema import BaseScanner
 
-from vigil.core.config import Config
+from vigil.core.config import ConfigFile
 from vigil.core.canary import CanaryTokens
 from vigil.core.vectordb import VectorDB, setup_vectordb
 from vigil.core.embedding import Embedder
@@ -15,10 +16,10 @@ from vigil.registry import ScannerRegistry
 
 class Vigil:
     vectordb: Optional[VectorDB] = None
-    embedder: Optional[Callable] = None
+    embedder: Optional[Embedder] = None
 
-    def __init__(self, config_path: str):
-        self._config = Config(config_path)
+    def __init__(self, config_path: Path):
+        self._config = ConfigFile.from_config_file(config_path)
         self._initialize_embedder()
         self._initialize_vectordb()
 
@@ -60,7 +61,7 @@ class Vigil:
             embedder = None
 
             if metadata.get("requires_config", False):
-                scanner_config = self._config.get_scanner_config(name)
+                scanner_config = self._config.scanners.scanner_config.get(name)
 
             if metadata.get("requires_vectordb", False):
                 vectordb = self.vectordb
@@ -76,20 +77,16 @@ class Vigil:
         return scanners
 
     def _create_manager(self, name: str, scanners: List[BaseScanner]) -> Manager:
-        manager_config = self._config.get_general_config()
-        auto_update = manager_config.get("auto_update", {}).get("enabled", False)
-        update_threshold = int(
-            manager_config.get("auto_update", {}).get("threshold", 3)
-        )
+        auto_update = self._config.auto_update.enabled
 
         return Manager(
             name=name,
             scanners=scanners,
             auto_update=auto_update,
-            update_threshold=update_threshold,
+            update_threshold=self._config.auto_update.threshold,
             db_client=self.vectordb if auto_update else None,
         )
 
     @staticmethod
-    def from_config(config_path: str) -> "Vigil":
+    def from_config(config_path: Path) -> "Vigil":
         return Vigil(config_path=config_path)

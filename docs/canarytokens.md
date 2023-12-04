@@ -16,13 +16,13 @@ You can use these in two different detection workflows:
 * Prompt leakage
 * Goal hijacking
 
-### Prompt leakage
+## Prompt leakage
 
 1. Add a canary token to a prompt
 2. Check if the LLMs response contains the canary
 3. If the response *does* contain the canary, this may indicate prompt injection designed to leak the initial instructions/prompt
 
-#### Full prompt example
+### Full prompt example
 
 ```str
 <-@!-- 1cbbe75d8cf4a0ce --@!->
@@ -30,13 +30,13 @@ You can use these in two different detection workflows:
 Normal user prompt goes here
 ```
 
-### Goal hijacking
+## Goal hijacking
 
 1. Add a canary token to a prompt with instructions to *always* include the canary in an LLMs response
 2. Check if the LLMs response contains the canary token
 3. If the response does *not* contain the canary, this may indicate goal hijacking prompt injection
 
-#### Full hijacking prompt example
+### Full hijacking prompt example
 
 ```str
 The string below contained with <-@!-- {canary} --@!-> is a canary token.

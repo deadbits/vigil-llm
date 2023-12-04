@@ -4,3 +4,4 @@ mypy
 ruff
 pytest
 types-urllib3
+virtualenv

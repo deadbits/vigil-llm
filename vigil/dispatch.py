@@ -59,7 +59,7 @@ class Manager:
             resp.errors.append("Input prompt value is empty")
             resp.status = StatusEmum.FAILED
             logger.error(f"{self.name} Input prompt value is empty")
-            return resp.dict()
+            return resp.model_dump()
 
         logger.info(f"{self.name} Dispatching scan request id={resp.uuid}")
 
@@ -108,7 +108,7 @@ class Manager:
 
         logger.info(f"{self.name} Returning response object id={resp.uuid}")
 
-        return resp.dict()
+        return resp.model_dump()
 
 
 class Scanner:

@@ -48,13 +48,11 @@ def check_field(
 def show_settings() -> Response:
     """Return the current configuration settings, but drop the OpenAI API key if it's there"""
     logger.info("({}) Returning config dictionary", request.path)
-    config_dict = {}
-    for key, value in vigil._config.get_general_config().items():
-        config_dict[key] = value
+    config_dict = vigil._config.model_dump()
 
     # don't return the OpenAI API key
     if "embedding" in config_dict:
-        config_dict["embedding"].pop("openai_api_key", None)
+        config_dict["embedding"].pop("openai_key", None)
 
     return jsonify(config_dict)
 

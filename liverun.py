@@ -7,8 +7,8 @@ import requests
 
 endpoint = "http://localhost:8000"
 
-
-while True:
+attempts = 0
+while attempts < 10:
     try:
         requests.get(endpoint)
         logger.success("Connected OK to {}", endpoint)
@@ -16,6 +16,7 @@ while True:
     except Exception as error:
         logger.warning("Error connecting to {}: {}", endpoint, error)
         time.sleep(1)
+        attempts += 1
 
 
 # test an analyze-prompt request

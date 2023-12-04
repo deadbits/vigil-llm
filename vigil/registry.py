@@ -1,6 +1,9 @@
 # from functools import wraps
 # from abc import ABC, abstractmethod
-from typing import Dict, List, Type, Callable, Optional
+from typing import Dict, List, Type, Optional
+from vigil.core.config import ScannerConfig
+from vigil.core.embedding import Embedder
+from vigil.core.vectordb import VectorDB
 
 from vigil.schema import BaseScanner
 
@@ -48,9 +51,9 @@ class ScannerRegistry:
     def create_scanner(
         cls,
         name: str,
-        config: Optional[dict] = None,
-        vectordb: Optional[Callable] = None,
-        embedder: Optional[Callable] = None,
+        config: Optional[ScannerConfig] = None,
+        vectordb: Optional[VectorDB] = None,
+        embedder: Optional[Embedder] = None,
         **params,
     ) -> BaseScanner:
         if name not in cls._registry:
@@ -63,7 +66,7 @@ class ScannerRegistry:
         if scanner_info["requires_config"]:
             if config is None:
                 raise ValueError(f"Config required for scanner '{name}'")
-            init_params = config
+            init_params = config.model_dump()
 
         if scanner_info["requires_vectordb"]:
             if vectordb is None:

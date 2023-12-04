@@ -1,13 +1,13 @@
 # https://github.com/deadbits/vigil-llm
-import os
-from typing import List, Optional
+
+from typing import Any, Callable, List, Optional
 import chromadb  # type: ignore
 from chromadb.config import Settings  # type: ignore
 from chromadb.utils import embedding_functions  # type: ignore
 from loguru import logger  # type: ignore
 
 from vigil.common import uuid4_str
-from vigil.core.config import Config
+from vigil.core.config import ConfigFile
 
 
 class VectorDB:
@@ -23,27 +23,21 @@ class VectorDB:
 
         self.name = "database:vector"
 
+        self.embed_fn: Callable  # define it here so we can set it to a callable later
         if model == "openai":
-            logger.info("Using OpenAI embedding function")
-            if openai_key is None or openai_key.strip() == "":
-                logger.debug("Using OPENAI_API_KEY environment variable for API Key")
-                openai_key = os.getenv("OPENAI_API_KEY")
-                if openai_key is None or openai_key.strip() == "":
-                    logger.error("OPENAI_API_KEY environment variable is not set")
-                    raise ValueError("OPENAI_API_KEY environment variable is not set")
-            else:
-                logger.debug(
-                    "Using OpenAI API Key from config file: '{}...{}'",
-                    openai_key[:3],
-                    openai_key[-3],
-                )
+            if openai_key is None:
+                raise ValueError("OpenAI key should be configured by now!")
+
+            logger.info(
+                "Using OpenAI embedding function with API Key '{}...{}'",
+                openai_key[:3],
+                openai_key[-3],
+            )
             self.embed_fn = embedding_functions.OpenAIEmbeddingFunction(
                 api_key=openai_key, model_name="text-embedding-ada-002"
             )
         elif model is not None:
-            # logger.info(
-            # f'Using SentenceTransformer embedding function: {model}'
-            # )
+            logger.debug("Using SentenceTransformer embedding function: {}", model)
             self.embed_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
                 model_name=model
             )
@@ -52,7 +46,7 @@ class VectorDB:
                 "vectordb.model is not set in config file, needs to be 'openai' or a SentenceTransformer model name"
             )
 
-        self.collection = collection
+        # self.collection = collection
         self.db_dir = db_dir
         if n_results is not None:
             self.n_results = int(n_results)
@@ -67,11 +61,12 @@ class VectorDB:
             path=self.db_dir,
             settings=Settings(anonymized_telemetry=False, allow_reset=True),
         )
-        self.collection = self.get_or_create_collection(self.collection)
+        self.collection = self.get_or_create_collection(collection)
         logger.success("Loaded database")
 
-    def get_or_create_collection(self, name: str):
+    def get_or_create_collection(self, name: str) -> Any:
         logger.info(f"Using collection: {name}")
+        # type: ignore
         self.collection = self.client.get_or_create_collection(
             name=name,
             embedding_function=self.embed_fn,
@@ -120,10 +115,11 @@ class VectorDB:
         return self.collection.query(query_texts=[text], n_results=self.n_results)
 
 
-def setup_vectordb(conf: Config) -> VectorDB:
-    full_config = conf.get_general_config()
-    params = full_config.get("vectordb", {})
-    params.update(full_config.get("embedding", {}))
+def setup_vectordb(conf: ConfigFile) -> VectorDB:
+    # full_config = conf.get_general_config()
+    # params = full_config.get("vectordb", {})
+    params = conf.vectordb.model_dump()
+    params.update(conf.embedding.model_dump())
     for key in ["collection", "db_dir", "n_results"]:
         if key not in params:
             raise ValueError(f"config needs key {key}")

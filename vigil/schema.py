@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from uuid import UUID, uuid4
 from enum import Enum
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from vigil.common import timestamp_str
 
@@ -63,6 +63,8 @@ class YaraMatch(BaseModel):
 
 
 class ModelMatch(BaseModel):
+    # to get around the fact you can't call a field "model" in pydantic 2.0
+    model_config = ConfigDict(protected_namespaces=())
     model_name: str = ""
     score: float = 0.0
     label: str = ""

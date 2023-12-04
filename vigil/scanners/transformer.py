@@ -60,7 +60,7 @@ class TransformerScanner(BaseScanner):
                             score=rec["score"],
                             label=rec["label"],
                             threshold=self.threshold,
-                        )
+                        ).model_dump()
                     )
 
         else:

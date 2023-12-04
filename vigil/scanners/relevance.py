@@ -35,14 +35,16 @@ class RelevanceScanner(BaseScanner):
             data = yaml.safe_load(fp)
         return data
 
-    def analyze(self, input_data: str, scan_id: uuid.UUID = uuid.uuid4()) -> ScanModel:
-        logger.info(f'[{self.name}] performing scan; id="{scan_id}"')
+    def analyze(
+        self, scan_obj: ScanModel, scan_id: uuid.UUID = uuid.uuid4()
+    ) -> ScanModel:
+        logger.info('[{}] performing scan; id="{}"', self.name, scan_id)
 
         prompt = self.load_prompt()["prompt"]
-        prompt = prompt.format(input_data=input_data)
+        prompt = prompt.format(input_data=scan_obj)
 
         try:
-            output = self.llm.generate(input_data, content_only=True)
+            output = self.llm.generate(scan_obj, content_only=True)
             logger.info(f"[{self.name}] LLM output: {output}")
         except Exception as err:
             logger.error(

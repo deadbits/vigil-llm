@@ -1,9 +1,8 @@
-from typing import Union
 import uuid
 
 from loguru import logger  # type: ignore
 
-from vigil.schema import BaseScanner, ResponseModel
+from vigil.schema import BaseScanner
 from vigil.schema import ScanModel
 from vigil.schema import VectorMatch
 from vigil.core.vectordb import VectorDB
@@ -23,30 +22,36 @@ class VectorScanner(BaseScanner):
     ) -> ScanModel:
         logger.info(f'Performing scan; id="{scan_id}"')
 
-        # try:
         matches = self.db_client.query(scan_obj.prompt)
-        # except Exception as err:
-        # logger.error(f'Failed to perform vector scan; id="{scan_id}" error="{err}"')
-        # return ResponseModel(
-        # errors=[f"Failed to perform vector scan: {err}"],
-        # )
-
         existing_texts = []
 
-        for match in zip(
-            matches["documents"][0], matches["metadatas"][0], matches["distances"][0]
+        if (
+            not matches.get("documents")
+            or not matches.get("metadatas")
+            or not matches.get("distances")
         ):
-            distance = match[2]
+            raise ValueError(
+                "Matches data is missing one of documents/metadatas/distances!"
+            )
 
-            if distance < self.threshold and match[0] not in existing_texts:
-                m = VectorMatch(text=match[0], metadata=match[1], distance=match[2])
-                logger.warning(
-                    f'Matched vector text="{m.text}" threshold="{self.threshold}" distance="{m.distance}" id="{scan_id}"'
-                )
-                scan_obj.results.append(m)
-                existing_texts.append(m.text)
+        else:
+            # stopping mypy from complaining even though we've checked there's something above
+            for match in zip(
+                matches["documents"][0],  # type: ignore
+                matches["metadatas"][0],  # type: ignore
+                matches["distances"][0],  # type: ignore
+            ):
+                distance = match[2]
 
-        if len(scan_obj.results) == 0:
-            logger.info(f'No matches found; id="{scan_id}"')
+                if distance < self.threshold and match[0] not in existing_texts:
+                    m = VectorMatch(text=match[0], metadata=match[1], distance=match[2])
+                    logger.warning(
+                        f'Matched vector text="{m.text}" threshold="{self.threshold}" distance="{m.distance}" id="{scan_id}"'
+                    )
+                    scan_obj.results.append(m.model_dump())
+                    existing_texts.append(m.text)
 
-        return scan_obj
+            if len(scan_obj.results) == 0:
+                logger.info(f'No matches found; id="{scan_id}"')
+
+            return scan_obj

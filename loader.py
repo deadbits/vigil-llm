@@ -1,8 +1,9 @@
 import argparse
+from pathlib import Path
 import sys
 from loguru import logger  # type: ignore
 
-from vigil.core.config import Config
+from vigil.core.config import ConfigFile
 from vigil.core.loader import Loader
 from vigil.vigil import setup_vectordb
 
@@ -22,7 +23,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    conf = Config(args.config)
+    conf = ConfigFile.from_config_file(Path(args.config))
 
     vdb = setup_vectordb(conf)
 
