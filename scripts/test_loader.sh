@@ -23,7 +23,7 @@ for dataset in "${datasets[@]}"; do
     echo "Loading dataset: $dataset with config $config_file"
 
     # Run the loader script with the current dataset and configuration file
-    python loader.py --conf "$config_file" --dataset "$dataset"
+    python loader.py --config "$config_file" --dataset "$dataset"
 
     # Check the exit status of the last command
     if [ $? -eq 0 ]; then
