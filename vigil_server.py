@@ -7,7 +7,7 @@ from typing import Any, Dict, List
 
 from loguru import logger  # type: ignore
 
-from flask import g, Flask, Response, request, jsonify, abort
+from flask import Flask, Response, request, jsonify, abort
 from pydantic import BaseModel, Field
 
 from vigil.core.cache import LRUCache
