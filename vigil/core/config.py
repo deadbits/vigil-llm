@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional, List
 
 from loguru import logger
-from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator  # type: ignore
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator
 
 
 class EmbeddingConfig(BaseModel):

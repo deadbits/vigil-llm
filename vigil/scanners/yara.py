@@ -1,7 +1,7 @@
 import os
 import uuid
 
-from loguru import logger  # type: ignore
+from loguru import logger
 import yara  # type: ignore
 
 from vigil.schema import YaraMatch

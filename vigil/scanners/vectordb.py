@@ -1,6 +1,6 @@
 import uuid
 
-from loguru import logger  # type: ignore
+from loguru import logger
 
 from vigil.schema import BaseScanner
 from vigil.schema import ScanModel

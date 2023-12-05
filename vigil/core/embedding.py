@@ -1,9 +1,9 @@
 from pydantic import SecretStr
-import numpy as np  # type: ignore
+import numpy as np
 
-from openai import OpenAI  # type: ignore
+from openai import OpenAI
 
-from loguru import logger  # type: ignore
+from loguru import logger
 
 from typing import List, Optional
 from sentence_transformers import SentenceTransformer  # type: ignore

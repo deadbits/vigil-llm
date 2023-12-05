@@ -3,7 +3,7 @@ import os
 import json
 
 import requests
-import streamlit as st  # type: ignore
+import streamlit as st
 
 from streamlit_extras.badges import badge  # type: ignore
 from streamlit_extras.stateful_button import button  # type: ignore

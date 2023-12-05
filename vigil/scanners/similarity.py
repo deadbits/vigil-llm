@@ -1,5 +1,5 @@
 import uuid
-from loguru import logger  # type: ignore
+from loguru import logger
 from vigil.core.embedding import Embedder, cosine_similarity
 from vigil.registry import Registration
 from vigil.schema import BaseScanner

@@ -3,10 +3,10 @@
 from typing import Any, Callable, List, Optional
 
 from pydantic import SecretStr
-import chromadb  # type: ignore
-from chromadb.config import Settings  # type: ignore
-from chromadb.utils import embedding_functions  # type: ignore
-from loguru import logger  # type: ignore
+import chromadb
+from chromadb.config import Settings
+from chromadb.utils import embedding_functions
+from loguru import logger
 
 from vigil.common import uuid4_str
 from vigil.core.config import ConfigFile
@@ -69,7 +69,6 @@ class VectorDB:
 
     def get_or_create_collection(self, name: str) -> Any:
         logger.info(f"Using collection: {name}")
-        # type: ignore
         self.collection = self.client.get_or_create_collection(
             name=name,
             embedding_function=self.embed_fn,

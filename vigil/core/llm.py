@@ -2,7 +2,7 @@ from typing import Optional
 import litellm  # type: ignore
 from loguru import logger
 
-from vigil.schema import ScanModel  # type: ignore
+from vigil.schema import ScanModel
 
 
 class LLM:

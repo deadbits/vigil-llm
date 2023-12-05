@@ -45,7 +45,7 @@ class BaseScanner(ABC):
     def analyze(self, scan_obj: ScanModel, scan_id: UUID = uuid4()) -> ScanModel:
         raise NotImplementedError("This method needs to be overridden in the subclass.")
 
-    def post_init(self):
+    def post_init(self) -> None:
         """Optional post-initialization method"""
         pass
 

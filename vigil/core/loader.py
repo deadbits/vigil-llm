@@ -1,4 +1,4 @@
-from loguru import logger  # type: ignore
+from loguru import logger
 from datasets import load_dataset  # type: ignore
 
 from vigil.schema import DatasetEntry

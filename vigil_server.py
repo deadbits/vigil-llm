@@ -5,7 +5,7 @@ import time
 import argparse
 from typing import Any, Dict, List
 
-from loguru import logger  # type: ignore
+from loguru import logger
 
 from flask import Flask, Response, request, jsonify, abort
 from pydantic import BaseModel, Field

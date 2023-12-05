@@ -2,7 +2,7 @@ from typing import List, Dict, Optional
 import math
 import uuid
 
-from loguru import logger  # type: ignore
+from loguru import logger
 
 from vigil.common import timestamp_str
 from vigil.schema import BaseScanner, StatusEmum

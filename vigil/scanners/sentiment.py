@@ -2,7 +2,7 @@ import uuid
 
 import nltk  # type: ignore
 from nltk.sentiment import SentimentIntensityAnalyzer  # type: ignore
-from loguru import logger  # type: ignore
+from loguru import logger
 
 from vigil.registry import Registration
 from vigil.schema import BaseScanner

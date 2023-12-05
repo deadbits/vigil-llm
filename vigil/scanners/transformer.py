@@ -1,6 +1,6 @@
 import uuid
 
-from loguru import logger  # type: ignore
+from loguru import logger
 from transformers import pipeline  # type: ignore
 
 from vigil.schema import ModelMatch

@@ -1,7 +1,7 @@
 import argparse
 from pathlib import Path
 import sys
-from loguru import logger  # type: ignore
+from loguru import logger
 
 from vigil.core.config import ConfigFile
 from vigil.core.loader import Loader

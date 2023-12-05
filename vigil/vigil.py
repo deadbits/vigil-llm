@@ -1,5 +1,5 @@
 from pathlib import Path
-from loguru import logger  # type: ignore
+from loguru import logger
 
 from typing import List, Optional
 
@@ -38,12 +38,12 @@ class Vigil:
             name="output", scanners=self._output_scanners
         )
 
-    def _initialize_embedder(self):
+    def _initialize_embedder(self) -> None:
         # full_config = self._config.get_general_config()
         # params = full_config.get("embedding", {})
         self.embedder = Embedder(**self._config.embedding.model_dump())
 
-    def _initialize_vectordb(self):
+    def _initialize_vectordb(self) -> None:
         self.vectordb = setup_vectordb(self._config)
 
     def _setup_scanners(self, scanner_names: List[str]) -> List[BaseScanner]:
