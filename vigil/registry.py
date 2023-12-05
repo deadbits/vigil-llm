@@ -66,7 +66,7 @@ class ScannerRegistry:
         if scanner_info["requires_config"]:
             if config is None:
                 raise ValueError(f"Config required for scanner '{name}'")
-            init_params = config.model_dump()
+            init_params = config.model_dump(exclude_unset=True, exclude_none=True)
 
         if scanner_info["requires_vectordb"]:
             if vectordb is None:

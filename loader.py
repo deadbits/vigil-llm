@@ -19,7 +19,7 @@ if __name__ == "__main__":
         "-D", "--datasets", help="Specify multiple repos", type=str, required=False
     )
 
-    parser.add_argument("-c", "--config", help="config file", type=str, required=False)
+    parser.add_argument("-c", "--config", help="config file", type=str, required=True)
 
     args = parser.parse_args()
 
@@ -28,11 +28,17 @@ if __name__ == "__main__":
     vdb = setup_vectordb(conf)
 
     data_loader = Loader(vector_db=vdb)
+
+    loaded_something = False
+
     if args.datasets:
         for dataset in args.datasets.split(","):
             data_loader.load_dataset(dataset)
-    elif args.dataset:
+            loaded_something = True
+    if args.dataset:
         data_loader.load_dataset(args.dataset)
-    else:
+        loaded_something = True
+
+    if not loaded_something:
         logger.error("Please specify a dataset or datasets!")
         sys.exit(1)

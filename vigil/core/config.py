@@ -92,6 +92,8 @@ class ConfigFile(BaseModel):
                     "No config file specified on the command line or VIGIL_CONFIG env var, quitting!"
                 )
                 raise ValueError("You need to specify a config file path!")
+        if not isinstance(filepath, Path):
+            filepath = Path(filepath)
         config = configparser.ConfigParser()
         config.read_file(filepath.open(mode="r", encoding="utf-8"))
         return cls.from_configparser(config)

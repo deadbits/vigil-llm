@@ -39,9 +39,9 @@ class Vigil:
         )
 
     def _initialize_embedder(self):
-        full_config = self._config.get_general_config()
-        params = full_config.get("embedding", {})
-        self.embedder = Embedder(**params)
+        # full_config = self._config.get_general_config()
+        # params = full_config.get("embedding", {})
+        self.embedder = Embedder(**self._config.embedding.model_dump())
 
     def _initialize_vectordb(self):
         self.vectordb = setup_vectordb(self._config)

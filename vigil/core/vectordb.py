@@ -1,6 +1,8 @@
 # https://github.com/deadbits/vigil-llm
 
 from typing import Any, Callable, List, Optional
+
+from pydantic import SecretStr
 import chromadb  # type: ignore
 from chromadb.config import Settings  # type: ignore
 from chromadb.utils import embedding_functions  # type: ignore
@@ -17,7 +19,7 @@ class VectorDB:
         collection: str,
         db_dir: str,
         n_results: int,
-        openai_key: Optional[str] = None,
+        openai_key: Optional[SecretStr] = None,
     ):
         """Initialize Chroma vector db client"""
 
@@ -30,11 +32,12 @@ class VectorDB:
 
             logger.info(
                 "Using OpenAI embedding function with API Key '{}...{}'",
-                openai_key[:3],
-                openai_key[-3],
+                openai_key.get_secret_value()[:3],
+                openai_key.get_secret_value()[-3],
             )
             self.embed_fn = embedding_functions.OpenAIEmbeddingFunction(
-                api_key=openai_key, model_name="text-embedding-ada-002"
+                api_key=openai_key.get_secret_value(),
+                model_name="text-embedding-ada-002",
             )
         elif model is not None:
             logger.debug("Using SentenceTransformer embedding function: {}", model)
@@ -116,24 +119,9 @@ class VectorDB:
 
 
 def setup_vectordb(conf: ConfigFile) -> VectorDB:
-    # full_config = conf.get_general_config()
-    # params = full_config.get("vectordb", {})
     params = conf.vectordb.model_dump()
     params.update(conf.embedding.model_dump())
     for key in ["collection", "db_dir", "n_results"]:
         if key not in params:
-            raise ValueError(f"config needs key {key}")
+            raise ValueError(f"Config needs key {key}")
     return VectorDB(**params)
-
-
-# def setup_vectordb(conf: Config) -> VectorDB:
-#     full_config = conf.get_general_config()
-#     params = full_config.get("vectordb", {})
-
-#     return VectorDB(
-#         model=params.get("model"),
-#         collection=params.get("collection"),
-#         db_dir=params.get("db_dir"),
-#         n_results=params.get("n_results"),
-#         openai_key=params.get("openai_key"),
-#     )

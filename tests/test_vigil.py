@@ -1,5 +1,5 @@
 import os
-import sys
+from pathlib import Path
 import pytest
 from vigil.vigil import Vigil
 
@@ -7,7 +7,13 @@ from vigil.vigil import Vigil
 @pytest.fixture
 def app() -> Vigil:
     config = os.getenv("VIGIL_CONFIG", "/app/conf/docker.conf")
-    return Vigil.from_config(config)
+    if not os.path.exists(config):
+        print(f"Failed to find {config}, trying conf files from ./conf")
+        if os.path.exists("conf"):
+            for file in os.listdir("conf"):
+                if file.endswith(".conf"):
+                    return Vigil.from_config(Path(f"conf/{file}"))
+    return Vigil.from_config(Path(config))
 
 
 def test_input_scanner(app: Vigil):

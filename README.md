@@ -105,8 +105,8 @@ For more information on modifying the `server.conf` file, please review the [Con
 Load the appropriate [datasets](https://vigil.deadbits.ai/overview/use-vigil/load-datasets) for your embedding model with the `loader.py` utility. If you don't intend on using the vector db scanner, you can skip this step.
 
 ```bash
-python loader.py --conf conf/server.conf --dataset deadbits/vigil-instruction-bypass-ada-002
-python loader.py --conf conf/server.conf --dataset deadbits/vigil-jailbreak-ada-002
+python loader.py --config conf/server.conf --dataset deadbits/vigil-instruction-bypass-ada-002
+python loader.py --config conf/server.conf --dataset deadbits/vigil-jailbreak-ada-002
 ```
 
 You can load your own datasets as long as you use the columns:

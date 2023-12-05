@@ -7,7 +7,7 @@ from typing import Any, Dict, List
 
 from loguru import logger  # type: ignore
 
-from flask import Flask, Response, request, jsonify, abort
+from flask import g, Flask, Response, request, jsonify, abort
 from pydantic import BaseModel, Field
 
 from vigil.core.cache import LRUCache
@@ -17,6 +17,7 @@ from vigil.vigil import Vigil
 
 logger.add("logs/server.log", format="{time} {level} {message}", level="INFO")
 
+lru_cache = LRUCache(capacity=100)
 app = Flask(__name__)
 
 
@@ -48,7 +49,7 @@ def check_field(
 def show_settings() -> Response:
     """Return the current configuration settings, but drop the OpenAI API key if it's there"""
     logger.info("({}) Returning config dictionary", request.path)
-    config_dict = vigil._config.model_dump()
+    config_dict = vigil._config.model_dump(exclude_none=True, exclude_unset=True)
 
     # don't return the OpenAI API key
     if "embedding" in config_dict:
@@ -167,8 +168,6 @@ def analyze_response():
     """Analyze a prompt and its response"""
     logger.info("({}) Received scan request", request.path)
 
-    # input_prompt = check_field(request.json, "prompt", str)
-    # out_data = check_field(request.json, "response", str)
     try:
         analyze_request = AnalyzeRequest(**request.json)
     except ValueError as ve:
@@ -211,6 +210,13 @@ def analyze_prompt() -> Any:
     return jsonify(result)
 
 
+@app.route("/cache/clear", methods=["POST"])
+def cache_clear() -> str:
+    logger.info("({}) Clearing cache", request.path)
+    lru_cache.empty()
+    return "Cache cleared"
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
@@ -222,5 +228,4 @@ if __name__ == "__main__":
 
     vigil = Vigil.from_config(args.config)
 
-    lru_cache = LRUCache(capacity=100)
     app.run(host="0.0.0.0", use_reloader=True)

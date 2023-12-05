@@ -1,4 +1,4 @@
-import os
+from pydantic import SecretStr
 import numpy as np  # type: ignore
 
 from openai import OpenAI  # type: ignore
@@ -17,27 +17,24 @@ def cosine_similarity(embedding1: List, embedding2: List) -> float:
 
 
 class Embedder:
-    def __init__(self, model: str, openai_key: Optional[str] = None, **kwargs):
+    def __init__(self, model: str, openai_key: Optional[SecretStr] = None, **kwargs):
         self.name = "embedder"
         self.model_name = model
 
         if model == "openai":
             logger.info("Using OpenAI")
-            if openai_key is None or openai_key.strip() == "":
-                # try and get it from the environment
-                openai_key = os.environ.get("OPENAI_API_KEY", None)
-                if openai_key is None:
-                    msg = "No OpenAI API key passed to embedder, needs to be in configuration or OPENAI_API_KEY env variable."
-                    logger.error(msg)
-                    raise ValueError(msg)
-            else:
-                logger.debug(
-                    "Using OpenAI API Key from config file: '{}...{}'",
-                    openai_key[:3],
-                    openai_key[-3],
-                )
 
-            self.client = OpenAI(api_key=openai_key)
+            if openai_key is None:
+                raise ValueError(
+                    "OpenAI API key is required in the configuration or environment variables for using the OpenAI model"
+                )
+            logger.debug(
+                "Using OpenAI API Key from config file: '{}...{}'",
+                openai_key.get_secret_value()[:3],
+                openai_key.get_secret_value()[-3],
+            )
+
+            self.client = OpenAI(api_key=openai_key.get_secret_value())
             try:
                 self.client.models.list()
             except Exception as err:

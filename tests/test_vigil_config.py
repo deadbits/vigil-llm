@@ -1,8 +1,4 @@
-from configparser import ConfigParser
-import json
-import os
 from pathlib import Path
-import pytest
 from vigil.core.config import ConfigFile
 
 
