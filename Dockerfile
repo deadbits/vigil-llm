@@ -52,4 +52,4 @@ ENV VIGIL_CONFIG=/app/conf/docker.conf
 
 COPY scripts/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh", "python", "vigil-server.py"]
+ENTRYPOINT ["/entrypoint.sh", "python", "vigil_server.py"]

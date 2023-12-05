@@ -126,7 +126,7 @@ Vigil can run as a REST API server or be imported directly into your Python appl
 To start the Vigil API server, run the following command:
 
 ```bash
-python vigil-server.py --conf conf/server.conf
+python vigil_server.py --conf conf/server.conf
 ```
 
 * [API Documentation](https://github.com/deadbits/vigil-llm#api-endpoints-)
