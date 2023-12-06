@@ -4,7 +4,7 @@ FROM python:3.10-slim
 WORKDIR /app
 
 # Install the necessary build tools, dependencies, git, git-lfs, and YARA prerequisites
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install --no-install-recommends -y \
     automake \
     autoconf \
     build-essential \
@@ -39,7 +39,7 @@ COPY . .
 # Install Python dependencies including PyTorch CPU
 RUN echo "Installing Python dependencies ... " \
     && pip install --no-cache-dir -r requirements.txt \
-    && pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+    && pip install --no-cache-dir torch==2.1.1+cpu torchvision==0.16.1+cpu --index-url https://download.pytorch.org/whl/cpu
 
 # Expose port 5000 for the API server
 EXPOSE 5000
