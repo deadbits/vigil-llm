@@ -4,7 +4,7 @@ FROM python:3.10-slim
 WORKDIR /app
 
 # Install the necessary build tools, dependencies, git, git-lfs, and YARA prerequisites
-RUN apt-get update && apt-get install --no-install-recommends -y \
+RUN apt-get update && apt-get install -y \
     automake \
     autoconf \
     build-essential \
