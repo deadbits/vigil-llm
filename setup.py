@@ -12,7 +12,6 @@ setup(
     packages=find_packages(),
     install_requires=[
         'openai==1.0.0',
-        'urllib3==1.26.7',
         'transformers==4.30.0',
         'pydantic==1.10.7',
         'Flask==3.0.0',
